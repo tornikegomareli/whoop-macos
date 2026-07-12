@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "whoopscope-auth",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-10",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "secrets": {
+    "required": [
+      "WHOOP_CLIENT_ID",
+      "WHOOP_CLIENT_SECRET"
+    ]
+  },
+  "ratelimits": [
+    {
+      "name": "TOKEN_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    }
+  ]
+}
