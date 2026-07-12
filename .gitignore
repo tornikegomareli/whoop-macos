@@ -1,0 +1,21 @@
+.DS_Store
+.build/
+build/
+DerivedData/
+Derived/
+Tuist/.build/
+Tuist/Dependencies/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# Local credentials and generated configuration
+*.xcconfig.local
+.env
+.env.*
+!.env.example
+
+# Cloudflare Worker local state and secrets
+Broker/node_modules/
+Broker/.wrangler/
+Broker/.dev.vars
