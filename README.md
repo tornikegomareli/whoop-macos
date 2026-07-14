@@ -1,6 +1,6 @@
 # WhoopScope
 
-WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of the official activity data, a live Today dashboard, and a glanceable menu-bar widget.
+WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of the official activity data, a live Today dashboard, 7/30/90-day trend comparisons, and a glanceable menu-bar widget.
 
 ## Requirements
 
@@ -82,6 +82,7 @@ xcodebuild \
 - `Modules/PreviewData`: deterministic fixture implementations used before live OAuth is connected.
 - `Modules/DesignSystem`: shared visual tokens and surfaces.
 - `Features/Dashboard`: dashboard presentation and its observable model.
+- `Features/Trends`: historical comparisons, interactive charts, and range selection.
 - `Apps/Mac`: dependency composition, navigation, window, and menu-bar scenes.
 
 Dependencies point inward toward the domain layer. Generated API DTOs, Keychain, WHOOP networking, HealthKit, and AI providers will remain infrastructure adapters.

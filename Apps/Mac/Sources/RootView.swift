@@ -1,10 +1,12 @@
 import SwiftUI
 import WhoopScopeDashboard
 import WhoopScopeSettings
+import WhoopScopeTrends
 
 struct RootView: View {
     let dashboardModel: DashboardModel
     let settingsModel: SettingsModel
+    let trendsModel: TrendsModel
 
     @State private var selection: AppDestination? = .today
 
@@ -22,6 +24,9 @@ struct RootView: View {
             case .today:
                 DashboardView(model: dashboardModel)
                     .navigationTitle("Today")
+            case .trends:
+                TrendsView(model: trendsModel)
+                    .navigationTitle("Trends")
             case .settings:
                 SettingsView(model: settingsModel)
             case let destination:

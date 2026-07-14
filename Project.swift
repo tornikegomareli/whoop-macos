@@ -96,6 +96,18 @@ let project = Project(
             ]
         ),
         .target(
+            name: "WhoopScopeTrends",
+            destinations: [.mac],
+            product: .framework,
+            bundleId: "com.whoopscope.trends",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Features/Trends/Sources/**"],
+            dependencies: [
+                .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopeDesignSystem"),
+            ]
+        ),
+        .target(
             name: "WhoopScopeSettings",
             destinations: [.mac],
             product: .framework,
@@ -137,6 +149,7 @@ let project = Project(
                 .target(name: "WhoopScopeDomain"),
                 .target(name: "WhoopScopePersistence"),
                 .target(name: "WhoopScopeSettings"),
+                .target(name: "WhoopScopeTrends"),
             ],
             settings: .settings(
                 base: [
@@ -151,6 +164,7 @@ let project = Project(
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDomain",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopePersistence",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeSettings",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeTrends",
                     ]),
                 ]
             )
@@ -227,6 +241,18 @@ let project = Project(
                 .target(name: "WhoopScopeDomain"),
             ]
         ),
+        .target(
+            name: "WhoopScopeTrendsTests",
+            destinations: [.mac],
+            product: .unitTests,
+            bundleId: "com.whoopscope.trends-tests",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Features/Trends/Tests/**"],
+            dependencies: [
+                .target(name: "WhoopScopeTrends"),
+                .target(name: "WhoopScopeDomain"),
+            ]
+        ),
     ],
     schemes: [
         .scheme(
@@ -241,6 +267,7 @@ let project = Project(
                     "WhoopScopeDataTests",
                     "WhoopScopePersistenceTests",
                     "WhoopScopeSettingsTests",
+                    "WhoopScopeTrendsTests",
                 ],
                 configuration: .debug
             ),

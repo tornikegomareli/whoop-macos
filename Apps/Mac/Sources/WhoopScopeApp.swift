@@ -5,11 +5,13 @@ import WhoopScopeDashboard
 import WhoopScopeDomain
 import WhoopScopePersistence
 import WhoopScopeSettings
+import WhoopScopeTrends
 
 @main
 struct WhoopScopeApp: App {
     @State private var dashboardModel: DashboardModel
     @State private var settingsModel: SettingsModel
+    @State private var trendsModel: TrendsModel
 
     init() {
         let authenticationService = WhoopBrokerAuthenticationService(
@@ -25,13 +27,26 @@ struct WhoopScopeApp: App {
         let apiClient = WhoopAPIClient { forceRefresh in
             try await authenticationService.accessToken(forceRefresh: forceRefresh)
         }
-        let dashboardRepository = LiveDashboardRepository(
+        let synchronizer = WhoopDataSynchronizer(
             apiClient: apiClient,
+            database: database
+        )
+        let dashboardRepository = LiveDashboardRepository(
+            synchronizer: synchronizer,
             database: database
         )
         _dashboardModel = State(
             initialValue: DashboardModel(
                 loadDashboard: LoadDashboard(repository: dashboardRepository)
+            )
+        )
+        let trendsRepository = LiveTrendsRepository(
+            synchronizer: synchronizer,
+            database: database
+        )
+        _trendsModel = State(
+            initialValue: TrendsModel(
+                loadTrends: LoadTrends(repository: trendsRepository)
             )
         )
         let accountRepository = LiveWhoopAccountRepository(
@@ -50,7 +65,8 @@ struct WhoopScopeApp: App {
         WindowGroup("WhoopScope", id: "dashboard") {
             RootView(
                 dashboardModel: dashboardModel,
-                settingsModel: settingsModel
+                settingsModel: settingsModel,
+                trendsModel: trendsModel
             )
                 .frame(minWidth: 980, minHeight: 680)
         }
