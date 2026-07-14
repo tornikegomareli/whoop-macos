@@ -3,7 +3,7 @@ import WhoopScopeDomain
 import WhoopScopePersistence
 
 public struct LiveDashboardRepository: DashboardRepository, Sendable {
-    private let apiClient: WhoopAPIClient
+    private let synchronizer: WhoopDataSynchronizer
     private let database: WhoopScopeDatabase
     private let now: @Sendable () -> Date
 
@@ -12,7 +12,21 @@ public struct LiveDashboardRepository: DashboardRepository, Sendable {
         database: WhoopScopeDatabase,
         now: @escaping @Sendable () -> Date = { Date.now }
     ) {
-        self.apiClient = apiClient
+        self.synchronizer = WhoopDataSynchronizer(
+            apiClient: apiClient,
+            database: database,
+            now: now
+        )
+        self.database = database
+        self.now = now
+    }
+
+    public init(
+        synchronizer: WhoopDataSynchronizer,
+        database: WhoopScopeDatabase,
+        now: @escaping @Sendable () -> Date = { Date.now }
+    ) {
+        self.synchronizer = synchronizer
         self.database = database
         self.now = now
     }
@@ -20,7 +34,7 @@ public struct LiveDashboardRepository: DashboardRepository, Sendable {
     public func dashboard() async throws -> DashboardSnapshot {
         let storedArchive = try await database.readArchive()
         do {
-            try await synchronize()
+            try await synchronizer.synchronize()
         } catch is CancellationError {
             throw CancellationError()
         } catch {
@@ -39,41 +53,4 @@ public struct LiveDashboardRepository: DashboardRepository, Sendable {
         return try DashboardSnapshotBuilder.build(from: archive, now: now())
     }
 
-    private func synchronize() async throws {
-        let synchronizedAt = now()
-        let profile = try await apiClient.profile().domainValue
-        let bodyMeasurements = try await apiClient.bodyMeasurements().domainValue
-        try await database.save(
-            WhoopAccount(
-                profile: profile,
-                bodyMeasurements: bodyMeasurements,
-                syncedAt: synchronizedAt
-            )
-        )
-
-        let watermarks = try await database.activityWatermarks()
-        let cycles = try await apiClient.cycles(
-            startingAt: incrementalStart(watermarks.cycleStart)
-        )
-        let recoveries = try await apiClient.recoveries(
-            startingAt: incrementalStart(watermarks.recoveryStart)
-        )
-        let sleeps = try await apiClient.sleeps(
-            startingAt: incrementalStart(watermarks.sleepStart)
-        )
-        let workouts = try await apiClient.workouts(
-            startingAt: incrementalStart(watermarks.workoutStart)
-        )
-        try await database.saveActivities(
-            cycles: cycles,
-            recoveries: recoveries,
-            sleeps: sleeps,
-            workouts: workouts,
-            synchronizedAt: synchronizedAt
-        )
-    }
-
-    private func incrementalStart(_ latestStart: Date?) -> Date? {
-        latestStart?.addingTimeInterval(-7 * 24 * 60 * 60)
-    }
 }
