@@ -7,8 +7,10 @@ import WhoopScopePreviewData
 @Test
 func dashboardModelLoadsSnapshot() async {
     let repository = FixtureDashboardRepository()
+    let recorder = DashboardSnapshotRecorder()
     let model = DashboardModel(
-        loadDashboard: LoadDashboard(repository: repository)
+        loadDashboard: LoadDashboard(repository: repository),
+        snapshotDidLoad: recorder.record
     )
 
     await model.loadIfNeeded()
@@ -16,6 +18,16 @@ func dashboardModelLoadsSnapshot() async {
     #expect(model.snapshot?.recovery.score == 84)
     #expect(model.snapshot?.history.count == 14)
     #expect(model.snapshot?.recentWorkouts.count == 3)
+    #expect(recorder.snapshots.count == 1)
+}
+
+@MainActor
+private final class DashboardSnapshotRecorder {
+    private(set) var snapshots: [DashboardSnapshot] = []
+
+    func record(_ snapshot: DashboardSnapshot) {
+        snapshots.append(snapshot)
+    }
 }
 
 @MainActor

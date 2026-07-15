@@ -31,13 +31,15 @@ struct WhoopScopeApp: App {
             apiClient: apiClient,
             database: database
         )
+        let widgetPublisher = WidgetSnapshotPublisher()
         let dashboardRepository = LiveDashboardRepository(
             synchronizer: synchronizer,
             database: database
         )
         _dashboardModel = State(
             initialValue: DashboardModel(
-                loadDashboard: LoadDashboard(repository: dashboardRepository)
+                loadDashboard: LoadDashboard(repository: dashboardRepository),
+                snapshotDidLoad: widgetPublisher.publish
             )
         )
         let trendsRepository = LiveTrendsRepository(
@@ -56,7 +58,8 @@ struct WhoopScopeApp: App {
         _settingsModel = State(
             initialValue: SettingsModel(
                 authenticationService: authenticationService,
-                loadAccount: LoadWhoopAccount(repository: accountRepository)
+                loadAccount: LoadWhoopAccount(repository: accountRepository),
+                didSignOut: widgetPublisher.clear
             )
         )
     }

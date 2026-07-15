@@ -9,9 +9,14 @@ public final class DashboardModel {
     public private(set) var isRefreshing = false
 
     private let loadDashboard: any LoadDashboardUseCase
+    private let snapshotDidLoad: @MainActor @Sendable (DashboardSnapshot) -> Void
 
-    public init(loadDashboard: any LoadDashboardUseCase) {
+    public init(
+        loadDashboard: any LoadDashboardUseCase,
+        snapshotDidLoad: @escaping @MainActor @Sendable (DashboardSnapshot) -> Void = { _ in }
+    ) {
         self.loadDashboard = loadDashboard
+        self.snapshotDidLoad = snapshotDidLoad
     }
 
     public var snapshot: DashboardSnapshot? {
@@ -45,7 +50,9 @@ public final class DashboardModel {
         }
 
         do {
-            state = .loaded(try await loadDashboard.execute())
+            let snapshot = try await loadDashboard.execute()
+            state = .loaded(snapshot)
+            snapshotDidLoad(snapshot)
         } catch is CancellationError {
             if !preservingContent {
                 state = .idle

@@ -12,19 +12,24 @@ public final class SettingsModel {
 
     private let authenticationService: any AuthenticationService
     private let loadAccount: (any LoadWhoopAccountUseCase)?
+    private let didSignOut: @MainActor @Sendable () -> Void
 
     public init(
         authenticationService: any AuthenticationService,
-        loadAccount: (any LoadWhoopAccountUseCase)? = nil
+        loadAccount: (any LoadWhoopAccountUseCase)? = nil,
+        didSignOut: @escaping @MainActor @Sendable () -> Void = {}
     ) {
         self.authenticationService = authenticationService
         self.loadAccount = loadAccount
+        self.didSignOut = didSignOut
     }
 
     public func load() async {
         authenticationStatus = await authenticationService.status()
         if authenticationStatus == .signedIn {
             await refreshAccount()
+        } else {
+            didSignOut()
         }
     }
 
@@ -44,7 +49,7 @@ public final class SettingsModel {
             return false
         } catch {
             errorMessage = error.localizedDescription
-            authenticationStatus = .signedOut
+            transitionToSignedOut()
             return false
         }
     }
@@ -57,14 +62,12 @@ public final class SettingsModel {
 
         do {
             try await authenticationService.signOut()
-            authenticationStatus = .signedOut
-            account = nil
+            transitionToSignedOut()
         } catch is CancellationError {
             return
         } catch {
             errorMessage = error.localizedDescription
-            authenticationStatus = .signedOut
-            account = nil
+            transitionToSignedOut()
         }
     }
 
@@ -80,11 +83,16 @@ public final class SettingsModel {
         } catch let error as AuthenticationError {
             errorMessage = error.localizedDescription
             if error == .sessionExpired || error == .invalidCredentials {
-                authenticationStatus = .signedOut
-                account = nil
+                transitionToSignedOut()
             }
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    private func transitionToSignedOut() {
+        authenticationStatus = .signedOut
+        account = nil
+        didSignOut()
     }
 }

@@ -1,5 +1,17 @@
 import ProjectDescription
 
+private func frameworkSearchSettings(_ targetNames: [String]) -> Settings {
+    .settings(
+        base: [
+            "FRAMEWORK_SEARCH_PATHS": .array(
+                ["$(inherited)"] + targetNames.map {
+                    "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/\($0)"
+                }
+            ),
+        ]
+    )
+}
+
 let project = Project(
     name: "WhoopScope",
     organizationName: "WhoopScope",
@@ -73,6 +85,20 @@ let project = Project(
             dependencies: []
         ),
         .target(
+            name: "WhoopScopeWidgetSupport",
+            destinations: [.mac],
+            product: .framework,
+            bundleId: "com.whoopscope.widget-support",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Modules/WidgetSupport/Sources/**"],
+            dependencies: [],
+            settings: .settings(
+                base: [
+                    "APPLICATION_EXTENSION_API_ONLY": "YES",
+                ]
+            )
+        ),
+        .target(
             name: "WhoopScopePreviewData",
             destinations: [.mac],
             product: .framework,
@@ -120,6 +146,54 @@ let project = Project(
             ]
         ),
         .target(
+            name: "WhoopScopeWidgetExtension",
+            destinations: [.mac],
+            product: .appExtension,
+            productName: "WhoopScopeWidget",
+            bundleId: "com.whoopscope.mac.widget",
+            deploymentTargets: .macOS("26.0"),
+            infoPlist: .dictionary(
+                [
+                    "CFBundleDisplayName": "WhoopScope",
+                    "CFBundleExecutable": "$(EXECUTABLE_NAME)",
+                    "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)",
+                    "CFBundleName": "WhoopScope",
+                    "CFBundlePackageType": "$(PRODUCT_BUNDLE_PACKAGE_TYPE)",
+                    "CFBundleShortVersionString": "0.1.0",
+                    "CFBundleVersion": "1",
+                    "NSExtension": [
+                        "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
+                    ],
+                ]
+            ),
+            sources: ["Apps/Widget/Sources/**"],
+            resources: ["Apps/Widget/Resources/**"],
+            entitlements: .dictionary(
+                [
+                    "com.apple.security.app-sandbox": true,
+                    "com.apple.security.application-groups": [
+                        "6SR4JWJD54.com.whoopscope.shared",
+                    ],
+                ]
+            ),
+            dependencies: [
+                .target(name: "WhoopScopeWidgetSupport"),
+            ],
+            settings: .settings(
+                base: [
+                    "APPLICATION_EXTENSION_API_ONLY": "YES",
+                    "CODE_SIGN_IDENTITY": "Apple Development",
+                    "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "6SR4JWJD54",
+                    "FRAMEWORK_SEARCH_PATHS": .array([
+                        "$(inherited)",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeWidgetSupport",
+                    ]),
+                    "SKIP_INSTALL": "YES",
+                ]
+            )
+        ),
+        .target(
             name: "WhoopScopeMac",
             destinations: [.mac],
             product: .app,
@@ -128,6 +202,12 @@ let project = Project(
             infoPlist: .dictionary(
                 [
                     "CFBundleDisplayName": "WhoopScope",
+                    "CFBundleExecutable": "$(EXECUTABLE_NAME)",
+                    "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)",
+                    "CFBundleName": "WhoopScope",
+                    "CFBundlePackageType": "$(PRODUCT_BUNDLE_PACKAGE_TYPE)",
+                    "CFBundleShortVersionString": "0.1.0",
+                    "CFBundleVersion": "1",
                     "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
                     "NSPrincipalClass": "NSApplication",
                     "WHOOPSCOPE_BROKER_URL": "https://whoopscope-auth.whoopscope.workers.dev",
@@ -141,6 +221,13 @@ let project = Project(
             ),
             sources: ["Apps/Mac/Sources/**"],
             resources: ["Apps/Mac/Resources/**"],
+            entitlements: .dictionary(
+                [
+                    "com.apple.security.application-groups": [
+                        "6SR4JWJD54.com.whoopscope.shared",
+                    ],
+                ]
+            ),
             dependencies: [
                 .target(name: "WhoopScopeDashboard"),
                 .target(name: "WhoopScopeAuthentication"),
@@ -150,10 +237,15 @@ let project = Project(
                 .target(name: "WhoopScopePersistence"),
                 .target(name: "WhoopScopeSettings"),
                 .target(name: "WhoopScopeTrends"),
+                .target(name: "WhoopScopeWidgetSupport"),
+                .target(name: "WhoopScopeWidgetExtension"),
             ],
             settings: .settings(
                 base: [
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                    "CODE_SIGN_IDENTITY": "Apple Development",
+                    "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "6SR4JWJD54",
                     "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
                     "FRAMEWORK_SEARCH_PATHS": .array([
                         "$(inherited)",
@@ -165,6 +257,7 @@ let project = Project(
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopePersistence",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeSettings",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeTrends",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeWidgetSupport",
                     ]),
                 ]
             )
@@ -178,7 +271,8 @@ let project = Project(
             sources: ["Modules/Domain/Tests/**"],
             dependencies: [
                 .target(name: "WhoopScopeDomain"),
-            ]
+            ],
+            settings: frameworkSearchSettings(["WhoopScopeDomain"])
         ),
         .target(
             name: "WhoopScopeDashboardTests",
@@ -191,7 +285,13 @@ let project = Project(
                 .target(name: "WhoopScopeDashboard"),
                 .target(name: "WhoopScopeDomain"),
                 .target(name: "WhoopScopePreviewData"),
-            ]
+            ],
+            settings: frameworkSearchSettings([
+                "WhoopScopeDashboard",
+                "WhoopScopeDesignSystem",
+                "WhoopScopeDomain",
+                "WhoopScopePreviewData",
+            ])
         ),
         .target(
             name: "WhoopScopePersistenceTests",
@@ -203,7 +303,14 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopePersistence"),
                 .target(name: "WhoopScopeDomain"),
-            ]
+            ],
+            settings: frameworkSearchSettings([
+                "GRDB",
+                "GRDBSQLite",
+                "GRDB_GRDB",
+                "WhoopScopePersistence",
+                "WhoopScopeDomain",
+            ])
         ),
         .target(
             name: "WhoopScopeDataTests",
@@ -215,7 +322,15 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopeData"),
                 .target(name: "WhoopScopeDomain"),
-            ]
+            ],
+            settings: frameworkSearchSettings([
+                "GRDB",
+                "GRDBSQLite",
+                "GRDB_GRDB",
+                "WhoopScopeData",
+                "WhoopScopeDomain",
+                "WhoopScopePersistence",
+            ])
         ),
         .target(
             name: "WhoopScopeAuthenticationTests",
@@ -227,7 +342,11 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopeAuthentication"),
                 .target(name: "WhoopScopeDomain"),
-            ]
+            ],
+            settings: frameworkSearchSettings([
+                "WhoopScopeAuthentication",
+                "WhoopScopeDomain",
+            ])
         ),
         .target(
             name: "WhoopScopeSettingsTests",
@@ -239,7 +358,12 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopeSettings"),
                 .target(name: "WhoopScopeDomain"),
-            ]
+            ],
+            settings: frameworkSearchSettings([
+                "WhoopScopeDesignSystem",
+                "WhoopScopeSettings",
+                "WhoopScopeDomain",
+            ])
         ),
         .target(
             name: "WhoopScopeTrendsTests",
@@ -251,7 +375,24 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopeTrends"),
                 .target(name: "WhoopScopeDomain"),
-            ]
+            ],
+            settings: frameworkSearchSettings([
+                "WhoopScopeDesignSystem",
+                "WhoopScopeTrends",
+                "WhoopScopeDomain",
+            ])
+        ),
+        .target(
+            name: "WhoopScopeWidgetSupportTests",
+            destinations: [.mac],
+            product: .unitTests,
+            bundleId: "com.whoopscope.widget-support-tests",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Modules/WidgetSupport/Tests/**"],
+            dependencies: [
+                .target(name: "WhoopScopeWidgetSupport"),
+            ],
+            settings: frameworkSearchSettings(["WhoopScopeWidgetSupport"])
         ),
     ],
     schemes: [
@@ -268,6 +409,7 @@ let project = Project(
                     "WhoopScopePersistenceTests",
                     "WhoopScopeSettingsTests",
                     "WhoopScopeTrendsTests",
+                    "WhoopScopeWidgetSupportTests",
                 ],
                 configuration: .debug
             ),
