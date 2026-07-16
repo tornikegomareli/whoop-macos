@@ -33,5 +33,17 @@ struct RootView: View {
                 PlannedFeatureView(destination: destination)
             }
         }
+        .onOpenURL(perform: handleOpenURL)
+    }
+
+    private func handleOpenURL(_ url: URL) {
+        guard
+            url.scheme == "whoopscope",
+            url.host == "open",
+            let destinationName = url.pathComponents.dropFirst().first,
+            let destination = AppDestination(rawValue: destinationName)
+        else { return }
+
+        selection = destination
     }
 }

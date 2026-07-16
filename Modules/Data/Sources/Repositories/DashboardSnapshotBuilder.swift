@@ -1,8 +1,8 @@
 import Foundation
 import WhoopScopeDomain
 
-enum DashboardSnapshotBuilder {
-    static func build(
+public enum DashboardSnapshotBuilder {
+    public static func build(
         from archive: WhoopDataArchive,
         now: Date
     ) throws -> DashboardSnapshot {
