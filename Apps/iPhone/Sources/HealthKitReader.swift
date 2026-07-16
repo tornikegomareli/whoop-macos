@@ -63,7 +63,8 @@ final class HealthKitReader {
         endDate: Date
     ) async throws -> [HealthMetricSample] {
         let calendar = calendar
-        try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation {
+            (continuation: CheckedContinuation<[HealthMetricSample], any Error>) in
             let predicate = HKQuery.predicateForSamples(
                 withStart: startDate,
                 end: endDate,
@@ -96,7 +97,8 @@ final class HealthKitReader {
                         HealthMetricSample(
                             kind: configuration.kind,
                             date: calendar.startOfDay(for: statistics.startDate),
-                            value: quantity.doubleValue(for: configuration.healthUnit),
+                            value: quantity.doubleValue(for: configuration.healthUnit)
+                                * configuration.valueScale,
                             unit: configuration.unitLabel,
                             source: "Apple Health"
                         )
@@ -113,7 +115,8 @@ final class HealthKitReader {
         endDate: Date
     ) async throws -> [HealthMetricSample] {
         let calendar = calendar
-        try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation {
+            (continuation: CheckedContinuation<[HealthMetricSample], any Error>) in
             let predicate = HKQuery.predicateForSamples(
                 withStart: startDate,
                 end: endDate,
@@ -158,6 +161,7 @@ private extension HealthKitReader {
         let option: HKStatisticsOptions
         let healthUnit: HKUnit
         let unitLabel: String
+        var valueScale: Double = 1
 
         var quantityType: HKQuantityType {
             HKObjectType.quantityType(forIdentifier: identifier)!
@@ -176,9 +180,9 @@ private extension HealthKitReader {
         .init(kind: .vo2Max, identifier: .vo2Max, option: .discreteAverage, healthUnit: HKUnit(from: "ml/kg*min"), unitLabel: "mL/kg/min"),
         .init(kind: .walkingSpeed, identifier: .walkingSpeed, option: .discreteAverage, healthUnit: .meter().unitDivided(by: .second()), unitLabel: "m/s"),
         .init(kind: .walkingStepLength, identifier: .walkingStepLength, option: .discreteAverage, healthUnit: .meter(), unitLabel: "m"),
-        .init(kind: .walkingAsymmetry, identifier: .walkingAsymmetryPercentage, option: .discreteAverage, healthUnit: .percent(), unitLabel: "%"),
-        .init(kind: .walkingDoubleSupport, identifier: .walkingDoubleSupportPercentage, option: .discreteAverage, healthUnit: .percent(), unitLabel: "%"),
-        .init(kind: .bodyFatPercentage, identifier: .bodyFatPercentage, option: .discreteAverage, healthUnit: .percent(), unitLabel: "%"),
+        .init(kind: .walkingAsymmetry, identifier: .walkingAsymmetryPercentage, option: .discreteAverage, healthUnit: .percent(), unitLabel: "%", valueScale: 100),
+        .init(kind: .walkingDoubleSupport, identifier: .walkingDoubleSupportPercentage, option: .discreteAverage, healthUnit: .percent(), unitLabel: "%", valueScale: 100),
+        .init(kind: .bodyFatPercentage, identifier: .bodyFatPercentage, option: .discreteAverage, healthUnit: .percent(), unitLabel: "%", valueScale: 100),
         .init(kind: .leanBodyMass, identifier: .leanBodyMass, option: .discreteAverage, healthUnit: .gramUnit(with: .kilo), unitLabel: "kg"),
         .init(kind: .waistCircumference, identifier: .waistCircumference, option: .discreteAverage, healthUnit: .meter(), unitLabel: "m"),
     ]
