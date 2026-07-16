@@ -3,6 +3,7 @@ import WhoopScopeAuthentication
 import WhoopScopeData
 import WhoopScopeDashboard
 import WhoopScopeDomain
+import WhoopScopeHealthBridge
 import WhoopScopePersistence
 import WhoopScopeSettings
 import WhoopScopeTrends
@@ -12,6 +13,7 @@ struct WhoopScopeApp: App {
     @State private var dashboardModel: DashboardModel
     @State private var settingsModel: SettingsModel
     @State private var trendsModel: TrendsModel
+    @State private var healthReceiver: HealthBridgeReceiver
 
     init() {
         let authenticationService = WhoopBrokerAuthenticationService(
@@ -32,6 +34,11 @@ struct WhoopScopeApp: App {
             database: database
         )
         let widgetPublisher = WidgetSnapshotPublisher()
+        _healthReceiver = State(
+            initialValue: HealthBridgeReceiver { payload in
+                try await database.saveHealthEnrichment(payload)
+            }
+        )
         let dashboardRepository = LiveDashboardRepository(
             synchronizer: synchronizer,
             database: database
@@ -69,7 +76,8 @@ struct WhoopScopeApp: App {
             RootView(
                 dashboardModel: dashboardModel,
                 settingsModel: settingsModel,
-                trendsModel: trendsModel
+                trendsModel: trendsModel,
+                healthReceiver: healthReceiver
             )
                 .frame(minWidth: 980, minHeight: 680)
         }
@@ -88,7 +96,7 @@ struct WhoopScopeApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView(model: settingsModel)
+            SettingsView(model: settingsModel, healthReceiver: healthReceiver)
                 .frame(width: 540, height: 520)
         }
     }

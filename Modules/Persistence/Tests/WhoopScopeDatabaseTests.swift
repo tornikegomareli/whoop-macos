@@ -173,3 +173,38 @@ func databaseRoundTripsCompleteWHOOPActivityPayloads() async throws {
             )
     )
 }
+
+@Test
+func databaseRoundTripsComplementaryHealthData() async throws {
+    let database = try WhoopScopeDatabase.inMemory()
+    let importedAt = Date(timeIntervalSince1970: 1_700_100_000)
+    let date = Date(timeIntervalSince1970: 1_700_000_000)
+    let payload = HealthEnrichmentPayload(
+        generatedAt: importedAt,
+        deviceName: "Taylor’s iPhone",
+        samples: [
+            HealthMetricSample(
+                kind: .steps,
+                date: date,
+                value: 9_842,
+                unit: "count",
+                source: "Apple Health"
+            ),
+            HealthMetricSample(
+                kind: .mindfulMinutes,
+                date: date,
+                value: 12,
+                unit: "min",
+                source: "Apple Health"
+            ),
+        ]
+    )
+
+    try await database.saveHealthEnrichment(payload)
+
+    #expect(try await database.readHealthEnrichment() == payload.samples)
+    #expect(
+        try await database.readHealthImportStatus()
+            == HealthImportStatus(deviceName: payload.deviceName, importedAt: importedAt)
+    )
+}

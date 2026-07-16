@@ -141,6 +141,38 @@ public struct WhoopScopeDatabase: Sendable {
         }
     }
 
+    public func saveHealthEnrichment(_ payload: HealthEnrichmentPayload) async throws {
+        let rows = payload.samples.map { HealthMetricSampleRow(sample: $0) }
+        try await writer.write { database in
+            for row in rows {
+                try row.save(database)
+            }
+            try HealthImportStateRow(
+                id: 1,
+                deviceName: payload.deviceName,
+                importedAt: payload.generatedAt
+            ).save(database)
+        }
+    }
+
+    public func readHealthEnrichment(
+        since startDate: Date? = nil
+    ) async throws -> [HealthMetricSample] {
+        try await writer.read { database in
+            var request = HealthMetricSampleRow.order(Column("date").asc)
+            if let startDate {
+                request = request.filter(Column("date") >= startDate)
+            }
+            return try request.fetchAll(database).map(\.domainValue)
+        }
+    }
+
+    public func readHealthImportStatus() async throws -> HealthImportStatus? {
+        try await writer.read { database in
+            try HealthImportStateRow.fetchOne(database)?.domainValue
+        }
+    }
+
     private func migrate() throws {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("v1_create_whoop_account") { database in
@@ -186,7 +218,32 @@ public struct WhoopScopeDatabase: Sendable {
                 table.column("synchronizedAt", .datetime).notNull()
             }
         }
+        migrator.registerMigration("v3_create_health_enrichment_tables") { database in
+            try database.create(table: HealthMetricSampleRow.databaseTableName) { table in
+                table.column("kind", .text).notNull()
+                table.column("date", .datetime).notNull().indexed()
+                table.column("value", .double).notNull()
+                table.column("unit", .text).notNull()
+                table.column("source", .text).notNull()
+                table.primaryKey(["kind", "date", "source"])
+            }
+            try database.create(table: HealthImportStateRow.databaseTableName) { table in
+                table.column("id", .integer).primaryKey()
+                table.column("deviceName", .text).notNull()
+                table.column("importedAt", .datetime).notNull()
+            }
+        }
         try migrator.migrate(writer)
+    }
+}
+
+public struct HealthImportStatus: Equatable, Sendable {
+    public let deviceName: String
+    public let importedAt: Date
+
+    public init(deviceName: String, importedAt: Date) {
+        self.deviceName = deviceName
+        self.importedAt = importedAt
     }
 }
 
@@ -247,6 +304,46 @@ private struct WhoopAccountRow: Codable, FetchableRecord, PersistableRecord {
             ),
             syncedAt: syncedAt
         )
+    }
+}
+
+private struct HealthMetricSampleRow: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "healthMetricSample"
+
+    let kind: String
+    let date: Date
+    let value: Double
+    let unit: String
+    let source: String
+
+    init(sample: HealthMetricSample) {
+        kind = sample.kind.rawValue
+        date = sample.date
+        value = sample.value
+        unit = sample.unit
+        source = sample.source
+    }
+
+    var domainValue: HealthMetricSample {
+        HealthMetricSample(
+            kind: HealthMetricKind(rawValue: kind)!,
+            date: date,
+            value: value,
+            unit: unit,
+            source: source
+        )
+    }
+}
+
+private struct HealthImportStateRow: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "healthImportState"
+
+    let id: Int
+    let deviceName: String
+    let importedAt: Date
+
+    var domainValue: HealthImportStatus {
+        HealthImportStatus(deviceName: deviceName, importedAt: importedAt)
     }
 }
 

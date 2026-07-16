@@ -1,10 +1,11 @@
 # WhoopScope
 
-WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of the official activity data, a live Today dashboard, 7/30/90-day trend comparisons, a glanceable menu-bar widget, and small and medium macOS desktop widgets.
+WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of official activity data, a live Today dashboard, 7/30/90-day trends, menu-bar and desktop widgets, Siri and Spotlight actions, and a Tuist-managed iPhone companion for complementary Apple Health context.
 
 ## Requirements
 
 - Apple silicon Mac running macOS 26 or later
+- iPhone running iOS 26 or later for optional Apple Health enrichment
 - Xcode 26 or later
 - [Mise](https://mise.jdx.dev/)
 
@@ -19,6 +20,17 @@ open WhoopScope.xcworkspace
 ```
 
 Select the `WhoopScope` scheme and run the macOS app. Generated Xcode projects and workspaces are intentionally excluded from Git.
+
+## Add complementary Apple Health data
+
+WHOOP remains the only source for sleep and recovery. The iPhone companion requests read-only access to selected activity, mobility, mindfulness, hydration, cardio-fitness, and body-composition categories; it never requests HealthKit sleep data.
+
+1. Keep the `WhoopScope` Mac app open so its local receiver is available.
+2. In Xcode, select the `WhoopScopeCompanion` scheme and your iPhone, then run it.
+3. Select **Allow Access & Prepare** and choose only the categories you want to share.
+4. Select your Mac when it appears, connect, and send the prepared summaries.
+
+Both devices need Wi-Fi and Bluetooth enabled. The transfer uses an encrypted Apple peer-to-peer session and does not use iCloud or a WhoopScope server. The Mac stores imported daily summaries in the same private local database as WHOOP data. Import status is visible in **Settings → Apple Health companion**.
 
 ## Connect WHOOP
 
@@ -84,8 +96,10 @@ xcodebuild \
 - `Features/Dashboard`: dashboard presentation and its observable model.
 - `Features/Trends`: historical comparisons, interactive charts, and range selection.
 - `Modules/WidgetSupport`: the minimal, display-only snapshot shared with WidgetKit.
+- `Modules/HealthBridge`: encrypted local discovery and transfer between iPhone and Mac.
 - `Apps/Widget`: small and medium desktop widgets that never access credentials or the WHOOP API.
 - `Apps/Mac`: dependency composition, navigation, window, and menu-bar scenes.
+- `Apps/iPhone`: read-only HealthKit companion, generated and maintained with Tuist.
 
 Dependencies point inward toward the domain layer. Generated API DTOs, Keychain, WHOOP networking, HealthKit, and AI providers will remain infrastructure adapters.
 
@@ -93,4 +107,4 @@ Dependencies point inward toward the domain layer. Generated API DTOs, Keychain,
 
 No credentials are present in the repository. Rotating user access and refresh tokens are stored in Keychain. The Client Secret exists only in the broker's encrypted deployment secrets. WHOOP records are stored in the user's Application Support directory and remain on the Mac.
 
-WHOOP will remain the only source for sleep and recovery. A later iPhone companion will read only complementary HealthKit categories and transfer them directly to the paired Mac without iCloud storage.
+WHOOP is the only source for sleep and recovery. The optional iPhone companion reads only complementary HealthKit categories selected by the user and transfers daily summaries directly to the Mac without iCloud storage.

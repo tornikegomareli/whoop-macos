@@ -1,5 +1,6 @@
 import SwiftUI
 import WhoopScopeDashboard
+import WhoopScopeHealthBridge
 import WhoopScopeSettings
 import WhoopScopeTrends
 
@@ -7,6 +8,7 @@ struct RootView: View {
     let dashboardModel: DashboardModel
     let settingsModel: SettingsModel
     let trendsModel: TrendsModel
+    let healthReceiver: HealthBridgeReceiver
 
     @State private var selection: AppDestination? = .today
 
@@ -28,12 +30,13 @@ struct RootView: View {
                 TrendsView(model: trendsModel)
                     .navigationTitle("Trends")
             case .settings:
-                SettingsView(model: settingsModel)
+                SettingsView(model: settingsModel, healthReceiver: healthReceiver)
             case let destination:
                 PlannedFeatureView(destination: destination)
             }
         }
         .onOpenURL(perform: handleOpenURL)
+        .task { healthReceiver.start() }
     }
 
     private func handleOpenURL(_ url: URL) {

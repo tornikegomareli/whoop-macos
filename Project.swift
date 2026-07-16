@@ -25,12 +25,23 @@ let project = Project(
     targets: [
         .target(
             name: "WhoopScopeDomain",
-            destinations: [.mac],
+            destinations: [.mac, .iPhone],
             product: .framework,
             bundleId: "com.whoopscope.domain",
-            deploymentTargets: .macOS("26.0"),
+            deploymentTargets: .multiplatform(iOS: "26.0", macOS: "26.0"),
             sources: ["Modules/Domain/Sources/**"],
             dependencies: []
+        ),
+        .target(
+            name: "WhoopScopeHealthBridge",
+            destinations: [.mac, .iPhone],
+            product: .framework,
+            bundleId: "com.whoopscope.health-bridge",
+            deploymentTargets: .multiplatform(iOS: "26.0", macOS: "26.0"),
+            sources: ["Modules/HealthBridge/Sources/**"],
+            dependencies: [
+                .target(name: "WhoopScopeDomain"),
+            ]
         ),
         .target(
             name: "WhoopScopePersistence",
@@ -143,6 +154,7 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopeDomain"),
                 .target(name: "WhoopScopeDesignSystem"),
+                .target(name: "WhoopScopeHealthBridge"),
             ]
         ),
         .target(
@@ -234,6 +246,7 @@ let project = Project(
                 .target(name: "WhoopScopeData"),
                 .target(name: "WhoopScopeDesignSystem"),
                 .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopeHealthBridge"),
                 .target(name: "WhoopScopePersistence"),
                 .target(name: "WhoopScopeSettings"),
                 .target(name: "WhoopScopeTrends"),
@@ -254,11 +267,57 @@ let project = Project(
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeData",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDesignSystem",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDomain",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeHealthBridge",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopePersistence",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeSettings",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeTrends",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeWidgetSupport",
                     ]),
+                ]
+            )
+        ),
+        .target(
+            name: "WhoopScopeCompanion",
+            destinations: [.iPhone],
+            product: .app,
+            bundleId: "com.whoopscope.companion",
+            deploymentTargets: .iOS("26.0"),
+            infoPlist: .extendingDefault(
+                with: [
+                    "CFBundleDisplayName": "WhoopScope",
+                    "CFBundleShortVersionString": "0.1.0",
+                    "CFBundleVersion": "1",
+                    "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
+                    "NSHealthShareUsageDescription": "WhoopScope reads selected activity, mobility, mindfulness, hydration, and body-composition data to enrich your private WHOOP history. It never requests sleep data.",
+                    "NSLocalNetworkUsageDescription": "WhoopScope uses your local network to send selected Apple Health summaries directly to your Mac.",
+                    "NSBonjourServices": ["_whoopscope._tcp"],
+                    "UILaunchScreen": [:],
+                ]
+            ),
+            sources: ["Apps/iPhone/Sources/**"],
+            resources: ["Apps/Mac/Resources/Assets.xcassets"],
+            entitlements: .dictionary(
+                [
+                    "com.apple.developer.healthkit": true,
+                ]
+            ),
+            dependencies: [
+                .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopeHealthBridge"),
+            ],
+            settings: .settings(
+                base: [
+                    "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
+                    "CODE_SIGN_IDENTITY": "Apple Development",
+                    "CODE_SIGN_STYLE": "Automatic",
+                    "DEVELOPMENT_TEAM": "6SR4JWJD54",
+                    "FRAMEWORK_SEARCH_PATHS": .array([
+                        "$(inherited)",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDomain",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeHealthBridge",
+                    ]),
+                    "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
+                    "TARGETED_DEVICE_FAMILY": "1",
                 ]
             )
         ),
@@ -361,6 +420,7 @@ let project = Project(
             ],
             settings: frameworkSearchSettings([
                 "WhoopScopeDesignSystem",
+                "WhoopScopeHealthBridge",
                 "WhoopScopeSettings",
                 "WhoopScopeDomain",
             ])
@@ -394,6 +454,22 @@ let project = Project(
             ],
             settings: frameworkSearchSettings(["WhoopScopeWidgetSupport"])
         ),
+        .target(
+            name: "WhoopScopeHealthBridgeTests",
+            destinations: [.mac],
+            product: .unitTests,
+            bundleId: "com.whoopscope.health-bridge-tests",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Modules/HealthBridge/Tests/**"],
+            dependencies: [
+                .target(name: "WhoopScopeHealthBridge"),
+                .target(name: "WhoopScopeDomain"),
+            ],
+            settings: frameworkSearchSettings([
+                "WhoopScopeHealthBridge",
+                "WhoopScopeDomain",
+            ])
+        ),
     ],
     schemes: [
         .scheme(
@@ -410,9 +486,16 @@ let project = Project(
                     "WhoopScopeSettingsTests",
                     "WhoopScopeTrendsTests",
                     "WhoopScopeWidgetSupportTests",
+                    "WhoopScopeHealthBridgeTests",
                 ],
                 configuration: .debug
             ),
+            runAction: .runAction(configuration: .debug)
+        ),
+        .scheme(
+            name: "WhoopScopeCompanion",
+            shared: true,
+            buildAction: .buildAction(targets: ["WhoopScopeCompanion"]),
             runAction: .runAction(configuration: .debug)
         ),
     ]
