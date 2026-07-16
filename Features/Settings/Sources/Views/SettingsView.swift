@@ -1,13 +1,20 @@
 import SwiftUI
+import WhoopScopeChat
 import WhoopScopeHealthBridge
 
 public struct SettingsView: View {
     private let model: SettingsModel
     private let healthReceiver: HealthBridgeReceiver
+    @Bindable private var aiSettings: AISettingsModel
 
-    public init(model: SettingsModel, healthReceiver: HealthBridgeReceiver) {
+    public init(
+        model: SettingsModel,
+        healthReceiver: HealthBridgeReceiver,
+        aiSettings: AISettingsModel
+    ) {
         self.model = model
         self.healthReceiver = healthReceiver
+        self.aiSettings = aiSettings
     }
 
     public var body: some View {
@@ -50,11 +57,55 @@ public struct SettingsView: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
+
+            Section("Ask Your Data") {
+                Picker("Provider", selection: $aiSettings.selectedProvider) {
+                    ForEach(AIProviderSelection.allCases) { provider in
+                        Text(provider.title).tag(provider)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text(aiSettings.selectedProvider.privacySummary)
+                    .font(.callout)
+                    .foregroundStyle(aiSettings.selectedProvider == .openAI ? .orange : .secondary)
+
+                if aiSettings.selectedProvider == .appleIntelligence {
+                    LabeledContent(
+                        "On-device model",
+                        value: aiSettings.appleIntelligenceStatus
+                    )
+                } else {
+                    SecureField("OpenAI API key", text: $aiSettings.apiKeyDraft)
+                        .textContentType(.password)
+                    TextField("Model", text: $aiSettings.openAIModel)
+                    HStack {
+                        Button("Save Key", systemImage: "key.fill") {
+                            Task { await aiSettings.saveOpenAIKey() }
+                        }
+                        .disabled(aiSettings.apiKeyDraft.isEmpty || aiSettings.isWorking)
+                        if aiSettings.hasStoredOpenAIKey {
+                            Label("Stored in Keychain", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            Spacer()
+                            Button("Remove Key", systemImage: "trash", role: .destructive) {
+                                Task { await aiSettings.removeOpenAIKey() }
+                            }
+                        }
+                    }
+                }
+                if let statusMessage = aiSettings.statusMessage {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
         .task {
             await model.load()
+            await aiSettings.load()
         }
     }
 

@@ -145,6 +145,19 @@ let project = Project(
             ]
         ),
         .target(
+            name: "WhoopScopeChat",
+            destinations: [.mac],
+            product: .framework,
+            bundleId: "com.whoopscope.chat",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Features/Chat/Sources/**"],
+            dependencies: [
+                .target(name: "WhoopScopeDesignSystem"),
+                .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopePersistence"),
+            ]
+        ),
+        .target(
             name: "WhoopScopeSettings",
             destinations: [.mac],
             product: .framework,
@@ -155,6 +168,7 @@ let project = Project(
                 .target(name: "WhoopScopeDomain"),
                 .target(name: "WhoopScopeDesignSystem"),
                 .target(name: "WhoopScopeHealthBridge"),
+                .target(name: "WhoopScopeChat"),
             ]
         ),
         .target(
@@ -243,6 +257,7 @@ let project = Project(
             dependencies: [
                 .target(name: "WhoopScopeDashboard"),
                 .target(name: "WhoopScopeAuthentication"),
+                .target(name: "WhoopScopeChat"),
                 .target(name: "WhoopScopeData"),
                 .target(name: "WhoopScopeDesignSystem"),
                 .target(name: "WhoopScopeDomain"),
@@ -264,6 +279,7 @@ let project = Project(
                         "$(inherited)",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDashboard",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeAuthentication",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeChat",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeData",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDesignSystem",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDomain",
@@ -421,6 +437,7 @@ let project = Project(
             settings: frameworkSearchSettings([
                 "WhoopScopeDesignSystem",
                 "WhoopScopeHealthBridge",
+                "WhoopScopeChat",
                 "WhoopScopeSettings",
                 "WhoopScopeDomain",
             ])
@@ -470,6 +487,28 @@ let project = Project(
                 "WhoopScopeDomain",
             ])
         ),
+        .target(
+            name: "WhoopScopeChatTests",
+            destinations: [.mac],
+            product: .unitTests,
+            bundleId: "com.whoopscope.chat-tests",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Features/Chat/Tests/**"],
+            dependencies: [
+                .target(name: "WhoopScopeChat"),
+                .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopePersistence"),
+            ],
+            settings: frameworkSearchSettings([
+                "GRDB",
+                "GRDBSQLite",
+                "GRDB_GRDB",
+                "WhoopScopeChat",
+                "WhoopScopeDesignSystem",
+                "WhoopScopeDomain",
+                "WhoopScopePersistence",
+            ])
+        ),
     ],
     schemes: [
         .scheme(
@@ -487,6 +526,7 @@ let project = Project(
                     "WhoopScopeTrendsTests",
                     "WhoopScopeWidgetSupportTests",
                     "WhoopScopeHealthBridgeTests",
+                    "WhoopScopeChatTests",
                 ],
                 configuration: .debug
             ),

@@ -1,5 +1,6 @@
 import SwiftUI
 import WhoopScopeAuthentication
+import WhoopScopeChat
 import WhoopScopeData
 import WhoopScopeDashboard
 import WhoopScopeDomain
@@ -14,6 +15,8 @@ struct WhoopScopeApp: App {
     @State private var settingsModel: SettingsModel
     @State private var trendsModel: TrendsModel
     @State private var healthReceiver: HealthBridgeReceiver
+    @State private var aiSettings: AISettingsModel
+    @State private var chatModel: ChatModel
 
     init() {
         let authenticationService = WhoopBrokerAuthenticationService(
@@ -38,6 +41,11 @@ struct WhoopScopeApp: App {
             initialValue: HealthBridgeReceiver { payload in
                 try await database.saveHealthEnrichment(payload)
             }
+        )
+        let aiSettings = AISettingsModel()
+        _aiSettings = State(initialValue: aiSettings)
+        _chatModel = State(
+            initialValue: ChatModel(database: database, settings: aiSettings)
         )
         let dashboardRepository = LiveDashboardRepository(
             synchronizer: synchronizer,
@@ -77,7 +85,9 @@ struct WhoopScopeApp: App {
                 dashboardModel: dashboardModel,
                 settingsModel: settingsModel,
                 trendsModel: trendsModel,
-                healthReceiver: healthReceiver
+                healthReceiver: healthReceiver,
+                chatModel: chatModel,
+                aiSettings: aiSettings
             )
                 .frame(minWidth: 980, minHeight: 680)
         }
@@ -96,7 +106,11 @@ struct WhoopScopeApp: App {
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView(model: settingsModel, healthReceiver: healthReceiver)
+            SettingsView(
+                model: settingsModel,
+                healthReceiver: healthReceiver,
+                aiSettings: aiSettings
+            )
                 .frame(width: 540, height: 520)
         }
     }

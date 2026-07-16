@@ -1,4 +1,5 @@
 import SwiftUI
+import WhoopScopeChat
 import WhoopScopeDashboard
 import WhoopScopeHealthBridge
 import WhoopScopeSettings
@@ -9,6 +10,8 @@ struct RootView: View {
     let settingsModel: SettingsModel
     let trendsModel: TrendsModel
     let healthReceiver: HealthBridgeReceiver
+    let chatModel: ChatModel
+    let aiSettings: AISettingsModel
 
     @State private var selection: AppDestination? = .today
 
@@ -30,7 +33,14 @@ struct RootView: View {
                 TrendsView(model: trendsModel)
                     .navigationTitle("Trends")
             case .settings:
-                SettingsView(model: settingsModel, healthReceiver: healthReceiver)
+                SettingsView(
+                    model: settingsModel,
+                    healthReceiver: healthReceiver,
+                    aiSettings: aiSettings
+                )
+            case .chat:
+                ChatView(model: chatModel)
+                    .navigationTitle("Ask Your Data")
             case let destination:
                 PlannedFeatureView(destination: destination)
             }

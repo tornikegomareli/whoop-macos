@@ -1,6 +1,6 @@
 # WhoopScope
 
-WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of official activity data, a live Today dashboard, 7/30/90-day trends, menu-bar and desktop widgets, Siri and Spotlight actions, and a Tuist-managed iPhone companion for complementary Apple Health context.
+WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of official activity data, a live Today dashboard, 7/30/90-day trends, menu-bar and desktop widgets, Siri and Spotlight actions, grounded data chat, and a Tuist-managed iPhone companion for complementary Apple Health context.
 
 ## Requirements
 
@@ -31,6 +31,20 @@ WHOOP remains the only source for sleep and recovery. The iPhone companion reque
 4. Select your Mac when it appears, connect, and send the prepared summaries.
 
 Both devices need Wi-Fi and Bluetooth enabled. The transfer uses an encrypted Apple peer-to-peer session and does not use iCloud or a WhoopScope server. The Mac stores imported daily summaries in the same private local database as WHOOP data. Import status is visible in **Settings → Apple Health companion**.
+
+## Ask your data
+
+Open **Ask Your Data** to ask questions about synchronized WHOOP history and imported Apple Health summaries. WhoopScope selects a compact date range from the question, adds exact local evidence, and labels every answer with the sources and period used. Sleep and recovery evidence always comes only from WHOOP.
+
+Apple Intelligence is the default provider. It runs through Apple's Foundation Models framework and keeps the prompt and response on the Mac. Apple Intelligence must be enabled and its on-device model must be ready.
+
+OpenAI is an optional bring-your-own-key provider:
+
+1. Open **Settings → Ask Your Data** and select **OpenAI**.
+2. Enter your API key and, if desired, change the model name.
+3. Save the key. It is stored in Keychain and is never written to the project or local database.
+
+When OpenAI is selected, the question and its grounded evidence are sent directly to the OpenAI Responses API. Requests set `store` to `false`; the provider and privacy boundary remain visible in Settings and in the chat header.
 
 ## Connect WHOOP
 
@@ -95,16 +109,17 @@ xcodebuild \
 - `Modules/DesignSystem`: shared visual tokens and surfaces.
 - `Features/Dashboard`: dashboard presentation and its observable model.
 - `Features/Trends`: historical comparisons, interactive charts, and range selection.
+- `Features/Chat`: evidence selection, grounded prompts, provider adapters, secure provider settings, and chat presentation.
 - `Modules/WidgetSupport`: the minimal, display-only snapshot shared with WidgetKit.
 - `Modules/HealthBridge`: encrypted local discovery and transfer between iPhone and Mac.
 - `Apps/Widget`: small and medium desktop widgets that never access credentials or the WHOOP API.
 - `Apps/Mac`: dependency composition, navigation, window, and menu-bar scenes.
 - `Apps/iPhone`: read-only HealthKit companion, generated and maintained with Tuist.
 
-Dependencies point inward toward the domain layer. Generated API DTOs, Keychain, WHOOP networking, HealthKit, and AI providers will remain infrastructure adapters.
+Dependencies point inward toward the domain layer. Generated API DTOs, Keychain, WHOOP networking, HealthKit, and model providers remain infrastructure adapters.
 
 ## Privacy boundary
 
 No credentials are present in the repository. Rotating user access and refresh tokens are stored in Keychain. The Client Secret exists only in the broker's encrypted deployment secrets. WHOOP records are stored in the user's Application Support directory and remain on the Mac.
 
-WHOOP is the only source for sleep and recovery. The optional iPhone companion reads only complementary HealthKit categories selected by the user and transfers daily summaries directly to the Mac without iCloud storage.
+WHOOP is the only source for sleep and recovery. The optional iPhone companion reads only complementary HealthKit categories selected by the user and transfers daily summaries directly to the Mac without iCloud storage. Apple Intelligence processing remains on-device. OpenAI is used only when the user selects it and supplies a Keychain-stored API key; the app then sends the question and grounded evidence directly to OpenAI with response storage disabled.
