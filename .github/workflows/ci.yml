@@ -33,6 +33,24 @@ jobs:
       - run: npm run check
       - run: npm test
 
+  website:
+    name: Website
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Website/package-lock.json
+      - run: npm ci
+      - run: npm audit
+      - run: npm run check
+      - run: npm run build:cloudflare
+
   secrets:
     name: Secret scan
     runs-on: ubuntu-latest

@@ -73,3 +73,17 @@ After publishing:
 
 Never upload an unsigned, ad-hoc-signed, Apple Development-signed, unstapled,
 or failed-Gatekeeper build as a public release.
+
+## Website
+
+The landing page is free of analytics and is released from the same tagged
+source as the app. Build and verify its connected Sites archive with:
+
+```bash
+Scripts/site/build-sites-archive.sh
+```
+
+The archive and checksum are written under `release/site/`. Save the version
+from the exact pushed commit before deploying it. A production deployment
+should only be created after the matching GitHub release and download artifact
+are publicly available.

@@ -1,0 +1,29 @@
+{
+  "name": "whoopscope-site",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:cloudflare": "opennextjs-cloudflare build",
+    "check": "tsc --noEmit",
+    "preview": "opennextjs-cloudflare preview"
+  },
+  "dependencies": {
+    "next": "16.2.11",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@opennextjs/cloudflare": "1.20.2",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.8",
+    "@types/react-dom": "19.2.3",
+    "typescript": "^5.9.3",
+    "wrangler": "4.113.0"
+  },
+  "overrides": {
+    "sharp": "0.35.3",
+    "postcss": "8.5.10"
+  }
+}
