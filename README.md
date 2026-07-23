@@ -173,6 +173,8 @@ to an issue. Use the `WhoopScope Demo` scheme for reproducible reports.
 Security reports must follow [SECURITY.md](SECURITY.md).
 Sample workflows and grounded question ideas are in
 [docs/EXAMPLES.md](docs/EXAMPLES.md).
+Maintainer signing and notarization steps are in
+[docs/RELEASING.md](docs/RELEASING.md).
 
 ## License and trademarks
 

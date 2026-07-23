@@ -36,6 +36,7 @@ Before opening a pull request:
 mise exec -- tuist test WhoopScope --platform macOS
 cd Broker
 npm ci
+npm audit
 npm run check
 npm test
 ```

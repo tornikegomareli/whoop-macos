@@ -1,5 +1,8 @@
 import ProjectDescription
 
+private let appVersion = "0.1.0"
+private let buildNumber = "1"
+
 private func frameworkSearchSettings(_ targetNames: [String]) -> Settings {
     .settings(
         base: [
@@ -20,6 +23,7 @@ let project = Project(
             "SWIFT_VERSION": "6.0",
             "SWIFT_STRICT_CONCURRENCY": "complete",
             "ENABLE_USER_SCRIPT_SANDBOXING": "YES",
+            "ENABLE_HARDENED_RUNTIME": "YES",
         ]
     ),
     targets: [
@@ -102,6 +106,7 @@ let project = Project(
             bundleId: "com.whoopscope.widget-support",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/WidgetSupport/Sources/**"],
+            resources: ["Modules/WidgetSupport/Resources/**"],
             dependencies: [],
             settings: .settings(
                 base: [
@@ -163,6 +168,7 @@ let project = Project(
             bundleId: "com.whoopscope.chat",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Chat/Sources/**"],
+            resources: ["Features/Chat/Resources/**"],
             dependencies: [
                 .target(name: "WhoopScopeDesignSystem"),
                 .target(name: "WhoopScopeDomain"),
@@ -197,8 +203,8 @@ let project = Project(
                     "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)",
                     "CFBundleName": "WhoopScope",
                     "CFBundlePackageType": "$(PRODUCT_BUNDLE_PACKAGE_TYPE)",
-                    "CFBundleShortVersionString": "0.1.0",
-                    "CFBundleVersion": "1",
+                    "CFBundleShortVersionString": .string(appVersion),
+                    "CFBundleVersion": .string(buildNumber),
                     "NSExtension": [
                         "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
                     ],
@@ -244,8 +250,8 @@ let project = Project(
                     "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)",
                     "CFBundleName": "WhoopScope",
                     "CFBundlePackageType": "$(PRODUCT_BUNDLE_PACKAGE_TYPE)",
-                    "CFBundleShortVersionString": "0.1.0",
-                    "CFBundleVersion": "1",
+                    "CFBundleShortVersionString": .string(appVersion),
+                    "CFBundleVersion": .string(buildNumber),
                     "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
                     "NSPrincipalClass": "NSApplication",
                     "WHOOPSCOPE_BROKER_URL": "https://whoopscope-auth.whoopscope.workers.dev",
@@ -317,8 +323,8 @@ let project = Project(
             infoPlist: .extendingDefault(
                 with: [
                     "CFBundleDisplayName": "WhoopScope",
-                    "CFBundleShortVersionString": "0.1.0",
-                    "CFBundleVersion": "1",
+                    "CFBundleShortVersionString": .string(appVersion),
+                    "CFBundleVersion": .string(buildNumber),
                     "LSApplicationCategoryType": "public.app-category.healthcare-fitness",
                     "NSHealthShareUsageDescription": "WhoopScope reads selected activity, mobility, mindfulness, hydration, and body-composition data to enrich your private WHOOP history. It never requests sleep data.",
                     "NSLocalNetworkUsageDescription": "WhoopScope uses your local network to send selected Apple Health summaries directly to your Mac.",
@@ -327,7 +333,10 @@ let project = Project(
                 ]
             ),
             sources: ["Apps/iPhone/Sources/**"],
-            resources: ["Apps/Mac/Resources/Assets.xcassets"],
+            resources: [
+                "Apps/Mac/Resources/Assets.xcassets",
+                "Apps/iPhone/Resources/**",
+            ],
             entitlements: .dictionary(
                 [
                     "com.apple.developer.healthkit": true,

@@ -29,6 +29,7 @@ jobs:
           cache: npm
           cache-dependency-path: Broker/package-lock.json
       - run: npm ci
+      - run: npm audit
       - run: npm run check
       - run: npm test
 

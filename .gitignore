@@ -8,6 +8,7 @@ Tuist/Dependencies/
 *.xcodeproj/
 *.xcworkspace/
 xcuserdata/
+/release/
 
 # Local credentials and generated configuration
 *.xcconfig.local
