@@ -1,5 +1,9 @@
 const github = "https://github.com/tornikegomareli/whoop-macos";
-const download = `${github}/releases/latest`;
+const version = "0.1.0-alpha.1";
+const releaseTag = `v${version}`;
+const releasePage = `${github}/releases/tag/${releaseTag}`;
+const download = `${github}/releases/download/${releaseTag}/WhoopScope-${version}-macOS.zip`;
+const checksums = `${github}/releases/download/${releaseTag}/SHA256SUMS.txt`;
 
 const features = [
   {
@@ -85,7 +89,8 @@ export default function Home() {
           </a>
         </div>
         <p className="requirements">
-          macOS 26+ · Apple silicon · version 0.1.0-alpha.1
+          macOS 26+ · Apple silicon · version {version} ·{" "}
+          <a href={checksums}>SHA-256</a>
         </p>
 
         <div className="heroFrame">
@@ -290,6 +295,7 @@ export default function Home() {
         <div>
           <a href={`${github}/blob/main/PRIVACY.md`}>Privacy</a>
           <a href={`${github}/blob/main/SECURITY.md`}>Security</a>
+          <a href={releasePage}>Release</a>
           <a href={github}>GitHub</a>
         </div>
         <small>

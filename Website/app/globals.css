@@ -226,6 +226,17 @@ video {
   font-weight: 600;
 }
 
+.requirements a {
+  color: #aeb5bf;
+  text-decoration: underline;
+  text-decoration-color: rgba(174, 181, 191, 0.45);
+  text-underline-offset: 3px;
+}
+
+.requirements a:hover {
+  color: white;
+}
+
 .heroFrame {
   position: relative;
   overflow: hidden;

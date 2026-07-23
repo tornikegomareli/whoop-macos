@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/tornikegomareli/whoop-macos/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/tornikegomareli/whoop-macos?include_prereleases&style=flat-square"></a>
+  <a href="https://github.com/tornikegomareli/whoop-macos/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/tornikegomareli/whoop-macos?include_prereleases&style=flat-square"></a>
   <a href="LICENSE"><img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square"></a>
   <img alt="macOS 26+" src="https://img.shields.io/badge/macOS-26%2B-black?style=flat-square&logo=apple">
   <a href="https://github.com/tornikegomareli/whoop-macos/actions"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/tornikegomareli/whoop-macos/ci.yml?branch=main&style=flat-square"></a>
@@ -63,8 +63,12 @@ Every number shown in the demo and screenshots is synthetic.
 
 ## Download
 
-Download the newest build from
-[GitHub Releases](https://github.com/tornikegomareli/whoop-macos/releases/latest).
+Download
+[WhoopScope 0.1.0-alpha.1 for macOS](https://github.com/tornikegomareli/whoop-macos/releases/download/v0.1.0-alpha.1/WhoopScope-0.1.0-alpha.1-macOS.zip).
+The matching
+[SHA-256 checksum](https://github.com/tornikegomareli/whoop-macos/releases/download/v0.1.0-alpha.1/SHA256SUMS.txt)
+and [release notes](https://github.com/tornikegomareli/whoop-macos/releases/tag/v0.1.0-alpha.1)
+are published alongside the build.
 
 WhoopScope currently requires:
 
