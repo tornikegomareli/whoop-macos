@@ -3,19 +3,25 @@ import WhoopScopeDomain
 
 public struct WhoopAPIClient: Sendable {
     public typealias AccessTokenProvider = @Sendable (_ forceRefresh: Bool) async throws -> String
+    public typealias RetrySleep = @Sendable (_ seconds: TimeInterval) async throws -> Void
 
     private let baseURL: URL
     private let accessToken: AccessTokenProvider
     private let session: URLSession
+    private let retrySleep: RetrySleep
 
     public init(
         baseURL: URL = URL(string: "https://api.prod.whoop.com/developer/v2/")!,
         accessToken: @escaping AccessTokenProvider,
-        session: URLSession = .shared
+        session: URLSession = .shared,
+        retrySleep: @escaping RetrySleep = {
+            try await Task.sleep(for: .seconds($0))
+        }
     ) {
         self.baseURL = baseURL
         self.accessToken = accessToken
         self.session = session
+        self.retrySleep = retrySleep
     }
 
     func profile() async throws -> WhoopUserProfileDTO {
@@ -105,18 +111,28 @@ public struct WhoopAPIClient: Sendable {
             throw WhoopAPIError.invalidResponse
         }
 
-        let token = try await accessToken(false)
-        let (data, response) = try await request(url: url, token: token)
+        var token = try await accessToken(false)
+        var refreshedAuthorization = false
+        var rateLimitRetries = 0
 
-        if response.statusCode == 401 {
-            let refreshedToken = try await accessToken(true)
-            let (retryData, retryResponse) = try await request(
-                url: url,
-                token: refreshedToken
-            )
-            return try decode(retryData, response: retryResponse)
+        while true {
+            try Task.checkCancellation()
+            let (data, response) = try await request(url: url, token: token)
+
+            if response.statusCode == 401, !refreshedAuthorization {
+                token = try await accessToken(true)
+                refreshedAuthorization = true
+                continue
+            }
+
+            if response.statusCode == 429, rateLimitRetries < 2 {
+                rateLimitRetries += 1
+                try await retrySleep(Self.retryDelay(from: response))
+                continue
+            }
+
+            return try decode(data, response: response)
         }
-        return try decode(data, response: response)
     }
 
     private func request(
@@ -180,6 +196,13 @@ public struct WhoopAPIClient: Sendable {
                 return date
         }
         return decoder
+    }
+
+    static func retryDelay(from response: HTTPURLResponse) -> TimeInterval {
+        let headerValue = response.value(forHTTPHeaderField: "X-RateLimit-Reset")
+            ?? response.value(forHTTPHeaderField: "Retry-After")
+        let serverDelay = headerValue.flatMap(TimeInterval.init)
+        return min(max(serverDelay ?? 2, 1), 60)
     }
 
     private static func iso8601String(from date: Date) -> String {

@@ -48,3 +48,31 @@ func responseDecoderReadsWHOOPSnakeCaseAndDates() throws {
     #expect(page.records[0].userId == 42)
     #expect(page.nextToken == "next-page")
 }
+
+@Test
+func rateLimitRetryUsesWhoopResetHeader() throws {
+    let response = try #require(
+        HTTPURLResponse(
+            url: URL(string: "https://api.prod.whoop.com")!,
+            statusCode: 429,
+            httpVersion: nil,
+            headerFields: ["X-RateLimit-Reset": "7"]
+        )
+    )
+
+    #expect(WhoopAPIClient.retryDelay(from: response) == 7)
+}
+
+@Test
+func rateLimitRetryClampsUnreasonableServerDelay() throws {
+    let response = try #require(
+        HTTPURLResponse(
+            url: URL(string: "https://api.prod.whoop.com")!,
+            statusCode: 429,
+            httpVersion: nil,
+            headerFields: ["X-RateLimit-Reset": "86400"]
+        )
+    )
+
+    #expect(WhoopAPIClient.retryDelay(from: response) == 60)
+}
