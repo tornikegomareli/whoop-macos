@@ -5,6 +5,7 @@ public enum AIProviderError: LocalizedError, Equatable {
     case missingOpenAIKey
     case invalidOpenAIResponse
     case openAIRequestFailed(String)
+    case openAIModelListFailed(String)
     case secureStorageFailure
     case noSynchronizedData
 
@@ -14,6 +15,8 @@ public enum AIProviderError: LocalizedError, Equatable {
         case .missingOpenAIKey: "Add your OpenAI API key in Settings before using OpenAI."
         case .invalidOpenAIResponse: "OpenAI returned a response WhoopScope could not read."
         case .openAIRequestFailed(let message): "OpenAI could not answer: \(message)"
+        case .openAIModelListFailed(let message):
+            "WhoopScope couldn't load OpenAI models: \(message)"
         case .secureStorageFailure: "WhoopScope could not access the API key in Keychain."
         case .noSynchronizedData:
             "Sync your WHOOP dashboard before asking questions about your data."

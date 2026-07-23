@@ -1,13 +1,19 @@
 import Foundation
 import Security
 
-public actor OpenAIKeyStore {
+public protocol OpenAIKeyStoring: Sendable {
+    func save(_ key: String) async throws
+    func read() async throws -> String?
+    func delete() async throws
+}
+
+public actor OpenAIKeyStore: OpenAIKeyStoring {
     private let service = "com.whoopscope.credentials"
     private let account = "openai-api-key"
 
     public init() {}
 
-    public func save(_ key: String) throws {
+    public func save(_ key: String) async throws {
         let data = Data(key.utf8)
         let query = baseQuery
         let attributes: [String: Any] = [
@@ -26,7 +32,7 @@ public actor OpenAIKeyStore {
         }
     }
 
-    public func read() throws -> String? {
+    public func read() async throws -> String? {
         var query = baseQuery
         query[kSecReturnData as String] = true
         query[kSecMatchLimit as String] = kSecMatchLimitOne
@@ -43,7 +49,7 @@ public actor OpenAIKeyStore {
         return value
     }
 
-    public func delete() throws {
+    public func delete() async throws {
         let status = SecItemDelete(baseQuery as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw AIProviderError.secureStorageFailure

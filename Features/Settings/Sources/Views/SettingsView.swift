@@ -78,7 +78,7 @@ public struct SettingsView: View {
                 } else {
                     SecureField("OpenAI API key", text: $aiSettings.apiKeyDraft)
                         .textContentType(.password)
-                    TextField("Model", text: $aiSettings.openAIModel)
+                    OpenAIModelPicker(settings: aiSettings)
                     HStack {
                         Button("Save Key", systemImage: "key.fill") {
                             Task { await aiSettings.saveOpenAIKey() }
@@ -123,6 +123,58 @@ public struct SettingsView: View {
             ("Import complete", "checkmark.seal.fill", .green)
         case .failed:
             ("Receiver needs attention", "exclamationmark.triangle.fill", .red)
+        }
+    }
+}
+
+private struct OpenAIModelPicker: View {
+    @Bindable var settings: AISettingsModel
+
+    var body: some View {
+        LabeledContent("Model") {
+            HStack(spacing: 8) {
+                if settings.isLoadingOpenAIModels {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel("Loading OpenAI models")
+                }
+
+                Picker("OpenAI model", selection: $settings.openAIModel) {
+                    ForEach(settings.modelPickerOptions) { model in
+                        Text(model.id)
+                            .tag(model.id)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .frame(minWidth: 220, alignment: .trailing)
+                .disabled(
+                    !settings.hasStoredOpenAIKey
+                        || settings.isLoadingOpenAIModels
+                        || settings.availableOpenAIModels.isEmpty
+                )
+
+                Button("Refresh models", systemImage: "arrow.clockwise") {
+                    Task { await settings.reloadOpenAIModels() }
+                }
+                .labelStyle(.iconOnly)
+                .disabled(!settings.hasStoredOpenAIKey || settings.isLoadingOpenAIModels)
+                .help("Refresh models available to this API key")
+            }
+        }
+
+        if !settings.hasStoredOpenAIKey {
+            Text("Save your API key to load the models available to your OpenAI account.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else if let error = settings.modelCatalogError {
+            Label(error, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.orange)
+        } else if !settings.isLoadingOpenAIModels {
+            Text("\(settings.availableOpenAIModels.count) compatible models available")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }
