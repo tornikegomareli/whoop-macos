@@ -10,12 +10,14 @@ public final class HealthBridgeReceiver {
     public private(set) var connectionState: HealthBridgeConnectionState = .searching
     public private(set) var lastImportedAt: Date?
     public private(set) var lastDeviceName: String?
+    public private(set) var pendingDeviceName: String?
 
     private let receivePayload: @Sendable (HealthEnrichmentPayload) async throws -> Void
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let sessionDelegate: HealthSessionDelegateProxy
     private let advertiserDelegate: HealthAdvertiserDelegateProxy
+    private var pendingInvitation: HealthBridgeInvitation?
     private var isAdvertising = false
 
     public init(
@@ -57,6 +59,11 @@ public final class HealthBridgeReceiver {
                 self?.connectionState = .failed(message)
             }
         }
+        advertiserDelegate.invitationDidArrive = { [weak self] invitation in
+            Task { @MainActor [weak self] in
+                self?.handle(invitation: invitation)
+            }
+        }
     }
 
     public func start() {
@@ -68,9 +75,37 @@ public final class HealthBridgeReceiver {
 
     public func stop() {
         guard isAdvertising else { return }
+        declinePendingDevice()
         advertiser.stopAdvertisingPeer()
         session.disconnect()
         isAdvertising = false
+    }
+
+    public func approvePendingDevice() {
+        guard let pendingInvitation else { return }
+        self.pendingInvitation = nil
+        pendingDeviceName = nil
+        connectionState = .connecting(pendingInvitation.peerName)
+        pendingInvitation.respond(accept: true)
+    }
+
+    public func declinePendingDevice() {
+        guard let pendingInvitation else { return }
+        self.pendingInvitation = nil
+        pendingDeviceName = nil
+        pendingInvitation.respond(accept: false)
+        connectionState = .searching
+    }
+
+    private func handle(invitation: HealthBridgeInvitation) {
+        guard session.connectedPeers.isEmpty else {
+            invitation.respond(accept: false)
+            return
+        }
+
+        pendingInvitation?.respond(accept: false)
+        pendingInvitation = invitation
+        pendingDeviceName = invitation.peerName
     }
 
     private func handleStateChange(peerName: String, state: MCSessionState) {
@@ -80,6 +115,8 @@ public final class HealthBridgeReceiver {
         case .connecting:
             connectionState = .connecting(peerName)
         case .connected:
+            pendingInvitation = nil
+            pendingDeviceName = nil
             connectionState = .connected(peerName)
         @unknown default:
             connectionState = .searching
@@ -117,6 +154,7 @@ private final class HealthAdvertiserDelegateProxy: NSObject,
     @unchecked Sendable
 {
     nonisolated(unsafe) var failureDidOccur: ((String) -> Void)?
+    nonisolated(unsafe) var invitationDidArrive: ((HealthBridgeInvitation) -> Void)?
     private let session: MCSession
 
     init(session: MCSession) {
@@ -129,7 +167,17 @@ private final class HealthAdvertiserDelegateProxy: NSObject,
         withContext context: Data?,
         invitationHandler: @escaping (Bool, MCSession?) -> Void
     ) {
-        invitationHandler(true, session)
+        guard let invitationDidArrive else {
+            invitationHandler(false, nil)
+            return
+        }
+        invitationDidArrive(
+            HealthBridgeInvitation(
+                peerName: peerID.displayName,
+                session: session,
+                handler: invitationHandler
+            )
+        )
     }
 
     func advertiser(
@@ -137,6 +185,37 @@ private final class HealthAdvertiserDelegateProxy: NSObject,
         didNotStartAdvertisingPeer error: any Error
     ) {
         failureDidOccur?("Your Mac could not advertise for the iPhone companion.")
+    }
+}
+
+private final class HealthBridgeInvitation: @unchecked Sendable {
+    let peerName: String
+
+    private let session: MCSession
+    private let handler: (Bool, MCSession?) -> Void
+    private let lock = NSLock()
+    private var hasResponded = false
+
+    init(
+        peerName: String,
+        session: MCSession,
+        handler: @escaping (Bool, MCSession?) -> Void
+    ) {
+        self.peerName = peerName
+        self.session = session
+        self.handler = handler
+    }
+
+    func respond(accept: Bool) {
+        lock.lock()
+        guard !hasResponded else {
+            lock.unlock()
+            return
+        }
+        hasResponded = true
+        lock.unlock()
+
+        handler(accept, accept ? session : nil)
     }
 }
 #endif

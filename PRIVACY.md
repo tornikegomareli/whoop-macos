@@ -12,7 +12,7 @@ An optional iPhone companion may access specifically selected Apple Health data 
 
 ## Storage
 
-Health and fitness data is stored locally on devices you control. Authentication tokens and AI-provider API keys are stored in Apple Keychain. WHOOP and imported Apple Health summaries are stored in the application's private Application Support directory and are protected by your macOS account and FileVault when FileVault is enabled. Apple Health summaries move from iPhone to Mac through an encrypted, direct Apple peer-to-peer session.
+Health and fitness data is stored locally on devices you control. Authentication tokens and AI-provider API keys are stored in Apple Keychain. WHOOP and imported Apple Health summaries are stored in the application's sandboxed Application Support directory and are protected by your macOS account and FileVault when FileVault is enabled. Apple Health summaries move from iPhone to Mac through an encrypted, direct Apple peer-to-peer session. The Mac must explicitly approve a nearby iPhone before a connection is accepted.
 
 WhoopScope does not use iCloud to store personal health information.
 
@@ -42,7 +42,7 @@ Data remains on your devices until you remove the application's local data or un
 
 ## Security
 
-WhoopScope uses encrypted network connections, restricted local application storage, and Apple Keychain to protect sensitive information. Enabling FileVault provides encryption at rest for data stored on the Mac.
+WhoopScope uses App Sandbox, encrypted network connections, restricted local application storage, explicit approval for nearby-device invitations, and Apple Keychain to protect sensitive information. Enabling FileVault provides encryption at rest for data stored on the Mac.
 
 ## Contact
 

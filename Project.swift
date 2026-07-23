@@ -267,9 +267,12 @@ let project = Project(
             resources: ["Apps/Mac/Resources/**"],
             entitlements: .dictionary(
                 [
+                    "com.apple.security.app-sandbox": true,
                     "com.apple.security.application-groups": [
                         "6SR4JWJD54.com.whoopscope.shared",
                     ],
+                    "com.apple.security.network.client": true,
+                    "com.apple.security.network.server": true,
                 ]
             ),
             dependencies: [

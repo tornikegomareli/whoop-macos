@@ -83,7 +83,7 @@ struct CompanionView: View {
         VStack(alignment: .leading, spacing: 14) {
             Label("2. Send to your Mac", systemImage: "macbook.and.iphone")
                 .font(.headline)
-            Text("Keep WhoopScope open on your Mac and make sure both devices have Wi-Fi and Bluetooth enabled.")
+            Text("Keep WhoopScope open on your Mac. After choosing it below, approve the connection in WhoopScope Settings on the Mac.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 

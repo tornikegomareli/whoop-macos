@@ -125,7 +125,9 @@ rotation procedure.
 - The authentication broker exchanges and refreshes tokens but does not store
   them or receive WHOOP health records.
 - Apple Health summaries travel directly from iPhone to Mac over an encrypted
-  local peer-to-peer session.
+  local peer-to-peer session after the Mac user approves the invitation.
+- The Mac app uses App Sandbox and limits its entitlements to its App Group
+  and client/server networking required by its documented features.
 - Apple Foundation Models processing stays on-device.
 - When OpenAI is selected, WhoopScope shows that grounded evidence will leave
   the Mac, uses the user's own key, and sets response storage to disabled.

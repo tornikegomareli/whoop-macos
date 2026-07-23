@@ -45,6 +45,29 @@ public struct SettingsView: View {
                     Label(healthStatus.title, systemImage: healthStatus.symbol)
                         .foregroundStyle(healthStatus.color)
                 }
+                if let pendingDeviceName = healthReceiver.pendingDeviceName {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label(
+                            "\(pendingDeviceName) wants to connect",
+                            systemImage: "iphone.gen3.radiowaves.left.and.right"
+                        )
+                        .font(.headline)
+                        Text("Approve only when you started this connection from your iPhone.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                        HStack {
+                            Button("Allow", systemImage: "checkmark.shield.fill") {
+                                healthReceiver.approvePendingDevice()
+                            }
+                            .buttonStyle(.borderedProminent)
+
+                            Button("Decline", systemImage: "xmark") {
+                                healthReceiver.declinePendingDevice()
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
                 if let deviceName = healthReceiver.lastDeviceName,
                    let importedAt = healthReceiver.lastImportedAt
                 {
@@ -53,7 +76,7 @@ public struct SettingsView: View {
                         Text(importedAt, format: .relative(presentation: .named))
                     }
                 }
-                Text("Open the WhoopScope companion on iPhone to send selected Apple Health summaries directly to this Mac. Sleep is never requested.")
+                Text("Open the WhoopScope companion on iPhone, choose this Mac, then approve the connection here. Sleep is never requested.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
@@ -110,19 +133,23 @@ public struct SettingsView: View {
     }
 
     private var healthStatus: (title: String, symbol: String, color: Color) {
+        if healthReceiver.pendingDeviceName != nil {
+            return ("Approval needed", "person.badge.shield.checkmark.fill", .orange)
+        }
+
         switch healthReceiver.connectionState {
         case .searching:
-            ("Ready for iPhone", "antenna.radiowaves.left.and.right", .secondary)
+            return ("Ready for iPhone", "antenna.radiowaves.left.and.right", .secondary)
         case let .connecting(name):
-            ("Connecting to \(name)", "link", .blue)
+            return ("Connecting to \(name)", "link", .blue)
         case let .connected(name):
-            ("Connected to \(name)", "checkmark.circle.fill", .green)
+            return ("Connected to \(name)", "checkmark.circle.fill", .green)
         case let .transferring(name):
-            ("Importing from \(name)", "arrow.down.circle", .blue)
+            return ("Importing from \(name)", "arrow.down.circle", .blue)
         case .completed:
-            ("Import complete", "checkmark.seal.fill", .green)
+            return ("Import complete", "checkmark.seal.fill", .green)
         case .failed:
-            ("Receiver needs attention", "exclamationmark.triangle.fill", .red)
+            return ("Receiver needs attention", "exclamationmark.triangle.fill", .red)
         }
     }
 }
