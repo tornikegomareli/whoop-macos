@@ -28,6 +28,16 @@ Run the app with synthetic data by selecting the `WhoopScope Demo` scheme.
 That scheme does not access Keychain, WHOOP, the live widget snapshot, or the
 Apple Health receiver.
 
+To sign a fork, create your own App IDs and App Group, then provide their
+values while generating:
+
+```bash
+TUIST_WHOOPSCOPE_DEVELOPMENT_TEAM=YOUR_TEAM_ID \
+TUIST_WHOOPSCOPE_BUNDLE_PREFIX=com.yourname.whoopscope \
+TUIST_WHOOPSCOPE_APP_GROUP=YOUR_TEAM_ID.com.yourname.whoopscope.shared \
+tuist generate
+```
+
 ## Tests and checks
 
 Before opening a pull request:

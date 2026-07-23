@@ -95,6 +95,20 @@ Select the `WhoopScope` scheme for live data. Select `WhoopScope Demo` for a
 fully local synthetic archive that does not access Keychain, WHOOP, the live
 widget snapshot, or the Apple Health receiver.
 
+The checked-in signing defaults reproduce the official project. To sign a
+fork with your own Apple Developer team, generate it with identifiers owned by
+that team:
+
+```bash
+TUIST_WHOOPSCOPE_DEVELOPMENT_TEAM=YOUR_TEAM_ID \
+TUIST_WHOOPSCOPE_BUNDLE_PREFIX=com.yourname.whoopscope \
+TUIST_WHOOPSCOPE_APP_GROUP=YOUR_TEAM_ID.com.yourname.whoopscope.shared \
+tuist generate
+```
+
+Create the matching App IDs and App Group in the Apple Developer portal first.
+These values are build configuration, not secrets.
+
 Run the complete macOS test suite with:
 
 ```bash

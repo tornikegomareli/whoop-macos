@@ -44,6 +44,17 @@ NOTARY_PROFILE=WhoopScope \
 Scripts/release/build-release.sh
 ```
 
+The official bundle prefix defaults to `com.whoopscope`, and the App Group
+defaults to `YOUR_TEAM_ID.com.whoopscope.shared`. A fork can override both:
+
+```bash
+DEVELOPMENT_TEAM=YOUR_TEAM_ID \
+BUNDLE_PREFIX=com.yourname.whoopscope \
+APP_GROUP=YOUR_TEAM_ID.com.yourname.whoopscope.shared \
+NOTARY_PROFILE=WhoopScope \
+Scripts/release/build-release.sh
+```
+
 The output is written under `release/vVERSION/`, which is ignored by Git.
 Verify the resulting archive independently:
 

@@ -15,6 +15,8 @@ CHECKSUM_PATH="$OUTPUT_DIR/SHA256SUMS.txt"
 SIGNING_IDENTITY="${SIGNING_IDENTITY:-Developer ID Application}"
 DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM:-}"
 NOTARY_PROFILE="${NOTARY_PROFILE:-}"
+BUNDLE_PREFIX="${BUNDLE_PREFIX:-com.whoopscope}"
+APP_GROUP="${APP_GROUP:-}"
 
 fail() {
   echo "error: $*" >&2
@@ -43,11 +45,16 @@ fi
   fail "set DEVELOPMENT_TEAM to the team that owns the Developer ID certificate, bundle IDs, and App Group"
 [[ -n "$NOTARY_PROFILE" ]] ||
   fail "set NOTARY_PROFILE to an xcrun notarytool Keychain profile"
+[[ -n "$APP_GROUP" ]] ||
+  APP_GROUP="$DEVELOPMENT_TEAM.com.whoopscope.shared"
 
 mkdir -p "$OUTPUT_DIR" "$STAGING_DIR"
 
 echo "Generating the Tuist workspace"
 mise exec -- tuist install
+TUIST_WHOOPSCOPE_DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+TUIST_WHOOPSCOPE_BUNDLE_PREFIX="$BUNDLE_PREFIX" \
+TUIST_WHOOPSCOPE_APP_GROUP="$APP_GROUP" \
 mise exec -- tuist generate --no-open
 
 echo "Archiving $TAG with Developer ID"

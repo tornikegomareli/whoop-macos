@@ -2,6 +2,12 @@ import ProjectDescription
 
 private let appVersion = "0.1.0"
 private let buildNumber = "1"
+private let developmentTeam = Environment.whoopscopeDevelopmentTeam
+    .getString(default: "6SR4JWJD54")
+private let bundleIdentifierPrefix = Environment.whoopscopeBundlePrefix
+    .getString(default: "com.whoopscope")
+private let appGroupIdentifier = Environment.whoopscopeAppGroup
+    .getString(default: "\(developmentTeam).com.whoopscope.shared")
 
 private func frameworkSearchSettings(_ targetNames: [String]) -> Settings {
     .settings(
@@ -31,7 +37,7 @@ let project = Project(
             name: "WhoopScopeDomain",
             destinations: [.mac, .iPhone],
             product: .framework,
-            bundleId: "com.whoopscope.domain",
+            bundleId: "\(bundleIdentifierPrefix).domain",
             deploymentTargets: .multiplatform(iOS: "26.0", macOS: "26.0"),
             sources: ["Modules/Domain/Sources/**"],
             dependencies: []
@@ -40,7 +46,7 @@ let project = Project(
             name: "WhoopScopeHealthBridge",
             destinations: [.mac, .iPhone],
             product: .framework,
-            bundleId: "com.whoopscope.health-bridge",
+            bundleId: "\(bundleIdentifierPrefix).health-bridge",
             deploymentTargets: .multiplatform(iOS: "26.0", macOS: "26.0"),
             sources: ["Modules/HealthBridge/Sources/**"],
             dependencies: [
@@ -51,7 +57,7 @@ let project = Project(
             name: "WhoopScopePersistence",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.persistence",
+            bundleId: "\(bundleIdentifierPrefix).persistence",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Persistence/Sources/**"],
             dependencies: [
@@ -71,7 +77,7 @@ let project = Project(
             name: "WhoopScopeAuthentication",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.authentication",
+            bundleId: "\(bundleIdentifierPrefix).authentication",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Authentication/Sources/**"],
             dependencies: [
@@ -82,7 +88,7 @@ let project = Project(
             name: "WhoopScopeData",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.data",
+            bundleId: "\(bundleIdentifierPrefix).data",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Data/Sources/**"],
             dependencies: [
@@ -94,7 +100,7 @@ let project = Project(
             name: "WhoopScopeDesignSystem",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.design-system",
+            bundleId: "\(bundleIdentifierPrefix).design-system",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/DesignSystem/Sources/**"],
             dependencies: []
@@ -103,7 +109,7 @@ let project = Project(
             name: "WhoopScopeWidgetSupport",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.widget-support",
+            bundleId: "\(bundleIdentifierPrefix).widget-support",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/WidgetSupport/Sources/**"],
             resources: ["Modules/WidgetSupport/Resources/**"],
@@ -118,7 +124,7 @@ let project = Project(
             name: "WhoopScopePreviewData",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.preview-data",
+            bundleId: "\(bundleIdentifierPrefix).preview-data",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/PreviewData/Sources/**"],
             dependencies: [
@@ -129,7 +135,7 @@ let project = Project(
             name: "WhoopScopeDashboard",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.dashboard",
+            bundleId: "\(bundleIdentifierPrefix).dashboard",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Dashboard/Sources/**"],
             dependencies: [
@@ -141,7 +147,7 @@ let project = Project(
             name: "WhoopScopeTrends",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.trends",
+            bundleId: "\(bundleIdentifierPrefix).trends",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Trends/Sources/**"],
             dependencies: [
@@ -153,7 +159,7 @@ let project = Project(
             name: "WhoopScopeExplorers",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.explorers",
+            bundleId: "\(bundleIdentifierPrefix).explorers",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Explorers/Sources/**"],
             dependencies: [
@@ -165,7 +171,7 @@ let project = Project(
             name: "WhoopScopeChat",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.chat",
+            bundleId: "\(bundleIdentifierPrefix).chat",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Chat/Sources/**"],
             resources: ["Features/Chat/Resources/**"],
@@ -179,7 +185,7 @@ let project = Project(
             name: "WhoopScopeSettings",
             destinations: [.mac],
             product: .framework,
-            bundleId: "com.whoopscope.settings",
+            bundleId: "\(bundleIdentifierPrefix).settings",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Settings/Sources/**"],
             dependencies: [
@@ -194,7 +200,7 @@ let project = Project(
             destinations: [.mac],
             product: .appExtension,
             productName: "WhoopScopeWidget",
-            bundleId: "com.whoopscope.mac.widget",
+            bundleId: "\(bundleIdentifierPrefix).mac.widget",
             deploymentTargets: .macOS("26.0"),
             infoPlist: .dictionary(
                 [
@@ -216,7 +222,7 @@ let project = Project(
                 [
                     "com.apple.security.app-sandbox": true,
                     "com.apple.security.application-groups": [
-                        "6SR4JWJD54.com.whoopscope.shared",
+                        .string(appGroupIdentifier),
                     ],
                 ]
             ),
@@ -228,7 +234,7 @@ let project = Project(
                     "APPLICATION_EXTENSION_API_ONLY": "YES",
                     "CODE_SIGN_IDENTITY": "Apple Development",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "DEVELOPMENT_TEAM": "6SR4JWJD54",
+                    "DEVELOPMENT_TEAM": .string(developmentTeam),
                     "FRAMEWORK_SEARCH_PATHS": .array([
                         "$(inherited)",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeWidgetSupport",
@@ -241,7 +247,7 @@ let project = Project(
             name: "WhoopScopeMac",
             destinations: [.mac],
             product: .app,
-            bundleId: "com.whoopscope.mac",
+            bundleId: "\(bundleIdentifierPrefix).mac",
             deploymentTargets: .macOS("26.0"),
             infoPlist: .dictionary(
                 [
@@ -257,7 +263,7 @@ let project = Project(
                     "WHOOPSCOPE_BROKER_URL": "https://whoopscope-auth.whoopscope.workers.dev",
                     "CFBundleURLTypes": [
                         [
-                            "CFBundleURLName": "com.whoopscope.oauth",
+                            "CFBundleURLName": "\(bundleIdentifierPrefix).oauth",
                             "CFBundleURLSchemes": ["whoopscope"],
                         ],
                     ],
@@ -269,7 +275,7 @@ let project = Project(
                 [
                     "com.apple.security.app-sandbox": true,
                     "com.apple.security.application-groups": [
-                        "6SR4JWJD54.com.whoopscope.shared",
+                        .string(appGroupIdentifier),
                     ],
                     "com.apple.security.network.client": true,
                     "com.apple.security.network.server": true,
@@ -296,7 +302,7 @@ let project = Project(
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_IDENTITY": "Apple Development",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "DEVELOPMENT_TEAM": "6SR4JWJD54",
+                    "DEVELOPMENT_TEAM": .string(developmentTeam),
                     "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",
                     "FRAMEWORK_SEARCH_PATHS": .array([
                         "$(inherited)",
@@ -321,7 +327,7 @@ let project = Project(
             name: "WhoopScopeCompanion",
             destinations: [.iPhone],
             product: .app,
-            bundleId: "com.whoopscope.companion",
+            bundleId: "\(bundleIdentifierPrefix).companion",
             deploymentTargets: .iOS("26.0"),
             infoPlist: .extendingDefault(
                 with: [
@@ -354,7 +360,7 @@ let project = Project(
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "CODE_SIGN_IDENTITY": "Apple Development",
                     "CODE_SIGN_STYLE": "Automatic",
-                    "DEVELOPMENT_TEAM": "6SR4JWJD54",
+                    "DEVELOPMENT_TEAM": .string(developmentTeam),
                     "FRAMEWORK_SEARCH_PATHS": .array([
                         "$(inherited)",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDomain",
@@ -369,7 +375,7 @@ let project = Project(
             name: "WhoopScopeDomainTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.domain-tests",
+            bundleId: "\(bundleIdentifierPrefix).domain-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Domain/Tests/**"],
             dependencies: [
@@ -381,7 +387,7 @@ let project = Project(
             name: "WhoopScopeDashboardTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.dashboard-tests",
+            bundleId: "\(bundleIdentifierPrefix).dashboard-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Dashboard/Tests/**"],
             dependencies: [
@@ -400,7 +406,7 @@ let project = Project(
             name: "WhoopScopePersistenceTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.persistence-tests",
+            bundleId: "\(bundleIdentifierPrefix).persistence-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Persistence/Tests/**"],
             dependencies: [
@@ -419,7 +425,7 @@ let project = Project(
             name: "WhoopScopeDataTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.data-tests",
+            bundleId: "\(bundleIdentifierPrefix).data-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Data/Tests/**"],
             dependencies: [
@@ -439,7 +445,7 @@ let project = Project(
             name: "WhoopScopeAuthenticationTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.authentication-tests",
+            bundleId: "\(bundleIdentifierPrefix).authentication-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/Authentication/Tests/**"],
             dependencies: [
@@ -455,7 +461,7 @@ let project = Project(
             name: "WhoopScopeSettingsTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.settings-tests",
+            bundleId: "\(bundleIdentifierPrefix).settings-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Settings/Tests/**"],
             dependencies: [
@@ -478,7 +484,7 @@ let project = Project(
             name: "WhoopScopeTrendsTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.trends-tests",
+            bundleId: "\(bundleIdentifierPrefix).trends-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Trends/Tests/**"],
             dependencies: [
@@ -495,7 +501,7 @@ let project = Project(
             name: "WhoopScopeExplorersTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.explorers-tests",
+            bundleId: "\(bundleIdentifierPrefix).explorers-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Explorers/Tests/**"],
             dependencies: [
@@ -512,7 +518,7 @@ let project = Project(
             name: "WhoopScopeWidgetSupportTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.widget-support-tests",
+            bundleId: "\(bundleIdentifierPrefix).widget-support-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/WidgetSupport/Tests/**"],
             dependencies: [
@@ -524,7 +530,7 @@ let project = Project(
             name: "WhoopScopeHealthBridgeTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.health-bridge-tests",
+            bundleId: "\(bundleIdentifierPrefix).health-bridge-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Modules/HealthBridge/Tests/**"],
             dependencies: [
@@ -540,7 +546,7 @@ let project = Project(
             name: "WhoopScopeChatTests",
             destinations: [.mac],
             product: .unitTests,
-            bundleId: "com.whoopscope.chat-tests",
+            bundleId: "\(bundleIdentifierPrefix).chat-tests",
             deploymentTargets: .macOS("26.0"),
             sources: ["Features/Chat/Tests/**"],
             dependencies: [
