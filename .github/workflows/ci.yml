@@ -72,4 +72,4 @@ jobs:
           install: true
           cache: true
       - run: mise exec -- tuist install
-      - run: mise exec -- tuist test WhoopScope --platform macOS
+      - run: mise exec -- tuist test WhoopScope --platform macOS --no-selective-testing -- CODE_SIGNING_ALLOWED=NO
