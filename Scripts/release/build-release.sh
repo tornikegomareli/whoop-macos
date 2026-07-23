@@ -23,7 +23,7 @@ fail() {
   exit 1
 }
 
-for command in mise xcodebuild codesign ditto shasum xcrun spctl; do
+for command in mise xcodebuild codesign ditto shasum xcrun spctl security; do
   command -v "$command" >/dev/null 2>&1 || fail "missing required command: $command"
 done
 
@@ -47,6 +47,14 @@ fi
   fail "set NOTARY_PROFILE to an xcrun notarytool Keychain profile"
 [[ -n "$APP_GROUP" ]] ||
   APP_GROUP="$DEVELOPMENT_TEAM.com.whoopscope.shared"
+
+security find-identity -v -p codesigning |
+  grep -F "Developer ID Application:" |
+  grep -F "($DEVELOPMENT_TEAM)" >/dev/null ||
+  fail "no Developer ID Application identity is installed for team $DEVELOPMENT_TEAM"
+
+xcrun notarytool history --keychain-profile "$NOTARY_PROFILE" >/dev/null 2>&1 ||
+  fail "notarytool Keychain profile '$NOTARY_PROFILE' is missing or invalid"
 
 mkdir -p "$OUTPUT_DIR" "$STAGING_DIR"
 
