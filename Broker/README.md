@@ -1,5 +1,11 @@
 # WhoopScope authentication broker
 
+> [!NOTE]
+> End users of the official WhoopScope release do not deploy this Worker and
+> do not need a WHOOP Developer account or Cloudflare account. This directory
+> is only for WhoopScope maintainers and people building or distributing a
+> fork.
+
 This Cloudflare Worker keeps a WHOOP OAuth Client Secret out of the native
 apps. It accepts only token exchange and refresh requests, forwards them to
 WHOOP over HTTPS, and returns WHOOP's response without storing credentials or
@@ -21,8 +27,9 @@ Configure the WHOOP application with this redirect URI:
 whoopscope://oauth/callback
 ```
 
-Enable the `offline` scope for refresh tokens and all six read scopes used by
-WhoopScope.
+Enable `offline` for refresh tokens plus every read scope used by WhoopScope:
+`read:profile`, `read:body_measurement`, `read:cycles`, `read:recovery`,
+`read:sleep`, and `read:workout`.
 
 ## Run locally
 

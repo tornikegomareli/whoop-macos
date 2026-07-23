@@ -27,9 +27,10 @@ explicitly choose a cloud model and supply your own API key.
 
 > [!IMPORTANT]
 > WhoopScope is in early access. The shared WHOOP application is currently
-> limited to the Developer Platform's pre-approval member allowance. Source
-> builds and the synthetic demo are available to everyone; broader sign-in
-> access depends on WHOOP application approval.
+> limited to 10 WHOOP members until WHOOP approves it for broader access.
+> Source builds and the synthetic demo are available to everyone; if all 10
+> places are occupied, a new member cannot connect through the official build
+> until approval or a place becomes available.
 
 ## Highlights
 
@@ -75,11 +76,78 @@ WhoopScope currently requires:
 - Apple silicon Mac.
 - macOS 26 or later.
 - A WHOOP account for live synchronization.
-- Apple Intelligence enabled for on-device chat, or an OpenAI API key for the
-  optional cloud provider.
+- Only for chat: Apple Intelligence enabled for on-device answers, or your own
+  OpenAI API key for the optional cloud provider.
 
 The release page states the signing and notarization status of each build.
 SHA-256 checksums are attached beside downloadable builds.
+
+## Connect your WHOOP account
+
+### Using the official WhoopScope release
+
+You do **not** need to create a WHOOP Developer application or run a server.
+The project maintainer operates the shared authentication broker used by the
+official build.
+
+1. Download the release ZIP, open it, and move `WhoopScope.app` to
+   `/Applications`.
+2. Open WhoopScope. macOS may ask you to confirm the first launch.
+3. Open **Settings**, find **WHOOP account**, and click **Connect WHOOP**.
+4. Your default browser opens WHOOP's official sign-in and authorization page
+   on `api.prod.whoop.com`. Sign in with your normal WHOOP account.
+5. Review the access requested by WhoopScope, then approve it. The app requests
+   read-only access to your profile, body measurements, cycles/strain,
+   recovery, sleep, and workouts, plus `offline` access so it can stay signed
+   in.
+6. WHOOP returns you to `whoopscope://oauth/callback`. The browser
+   authorization window closes, WhoopScope becomes active, and the first local
+   sync begins.
+7. Leave the app installed and it will refresh expiring authorization
+   automatically. If WHOOP revokes or expires the authorization, Settings will
+   ask you to reconnect.
+
+To stop access, choose **Settings → WHOOP account → Disconnect and Revoke
+Access**. WhoopScope revokes the WHOOP authorization, deletes its tokens from
+Keychain, and stops synchronizing. You can also revoke the integration from
+the WHOOP app.
+
+An ordinary user does **not** need:
+
+- A WHOOP Developer Dashboard account, Client ID, or Client Secret.
+- A Cloudflare account, Worker deployment, or hosted server.
+- Xcode, Tuist, or an Apple Developer membership.
+- An OpenAI API key unless they deliberately select OpenAI for chat.
+
+The official build shares one WHOOP Developer application. WHOOP's
+[App Approval documentation](https://developer.whoop.com/docs/developing/app-approval/)
+currently allows an unapproved application to serve up to 10 members. If the
+allowance is full, a new WHOOP account cannot connect through the official
+build until WHOOP approves the application for more members. Anyone can still
+build and run the synthetic `WhoopScope Demo` scheme locally.
+
+### What the authentication broker does
+
+The official app cannot safely contain a WHOOP Client Secret, so the maintainer
+hosts a small, stateless Cloudflare Worker. Free and open-source distribution
+does not remove this OAuth security requirement.
+
+1. The Mac app opens WHOOP's authorization page.
+2. After you consent, the Mac app sends the one-time authorization code to the
+   broker.
+3. The broker exchanges that code—and later rotating refresh tokens—with
+   WHOOP using the server-side Client Secret.
+4. The Mac app stores the returned access and refresh tokens in Apple Keychain.
+5. The Mac app downloads your health records directly from WHOOP's API into
+   its local database.
+
+The broker does not keep accounts, tokens, or health records, and WHOOP API
+health-data requests do not pass through it. WHOOP documents the consent,
+authorization-code, refresh-token, and revocation behavior in its
+[OAuth guide](https://developer.whoop.com/docs/developing/oauth/).
+
+The maintainer must keep the official broker deployed and available for users
+to sign in and refresh authorization. End users never deploy it themselves.
 
 ## Build from source
 
@@ -119,21 +187,41 @@ Run the complete macOS test suite with:
 mise exec -- tuist test WhoopScope --platform macOS
 ```
 
-## Connect WHOOP
+### Connect a fork to WHOOP
 
-The published build uses WhoopScope's authentication broker. The WHOOP Client
-Secret remains on that server and is never embedded in the Mac app.
+These steps are for people distributing or developing a fork. They are **not**
+required for users of the official WhoopScope release.
 
-Maintainers of a fork should create their own WHOOP Developer application with:
+1. Create your own application in the
+   [WHOOP Developer Dashboard](https://developer-dashboard.whoop.com/). Provide
+   your fork's name, contact email, and a publicly accessible privacy-policy
+   URL.
+2. Register this exact redirect URI:
 
-```text
-whoopscope://oauth/callback
-```
+   ```text
+   whoopscope://oauth/callback
+   ```
 
-Enable `offline` and all six read scopes, deploy the worker in `Broker`, and
-change `WHOOPSCOPE_BROKER_URL` in `Project.swift` to the fork's HTTPS endpoint.
-See [Broker/README.md](Broker/README.md) for the complete deployment and secret
-rotation procedure.
+3. Enable these seven scopes: `offline`, `read:profile`,
+   `read:body_measurement`, `read:cycles`, `read:recovery`, `read:sleep`, and
+   `read:workout`.
+4. Copy the Client ID and Client Secret. Never add the Client Secret to the Mac
+   app, `Project.swift`, source control, build settings, or logs.
+5. Deploy the Worker in [`Broker`](Broker) under your own Cloudflare account
+   and store the credentials as its encrypted `WHOOP_CLIENT_ID` and
+   `WHOOP_CLIENT_SECRET` secrets.
+6. Set `WHOOPSCOPE_BROKER_URL` in `Project.swift` to your Worker's HTTPS URL,
+   regenerate the workspace, and test sign-in, refresh, and revocation.
+7. If your fork can be installed beside WhoopScope, replace the
+   `whoopscope` URL scheme and matching redirect URI throughout the app,
+   broker, WHOOP configuration, tests, and App Intents with a unique scheme.
+8. Before serving more than 10 WHOOP members, submit your own WHOOP application
+   for approval.
+
+Every public fork must use its own WHOOP application and broker. Do not point a
+fork at the hosted official WhoopScope broker. See
+[Broker/README.md](Broker/README.md) for deployment, testing, and secret
+rotation instructions.
 
 ## Privacy model
 
