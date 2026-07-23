@@ -463,9 +463,13 @@ let project = Project(
                 .target(name: "WhoopScopeDomain"),
             ],
             settings: frameworkSearchSettings([
+                "GRDB",
+                "GRDBSQLite",
+                "GRDB_GRDB",
                 "WhoopScopeDesignSystem",
                 "WhoopScopeHealthBridge",
                 "WhoopScopeChat",
+                "WhoopScopePersistence",
                 "WhoopScopeSettings",
                 "WhoopScopeDomain",
             ])
