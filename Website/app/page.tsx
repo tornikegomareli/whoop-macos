@@ -4,6 +4,8 @@ const releaseTag = `v${version}`;
 const releasePage = `${github}/releases/tag/${releaseTag}`;
 const download = `${github}/releases/download/${releaseTag}/WhoopScope-${version}-macOS.zip`;
 const checksums = `${github}/releases/download/${releaseTag}/SHA256SUMS.txt`;
+const assetBase = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const asset = (path: string) => `${assetBase}${path}`;
 
 const features = [
   {
@@ -49,7 +51,7 @@ export default function Home() {
     <main>
       <nav className="nav shell" aria-label="Primary navigation">
         <a className="brand" href="#top" aria-label="WhoopScope home">
-          <img src="/icon.png" width="34" height="34" alt="" />
+          <img src={asset("/icon.png")} width="34" height="34" alt="" />
           <span>WhoopScope</span>
         </a>
         <div className="navLinks">
@@ -101,7 +103,7 @@ export default function Home() {
             <span className="sampleLabel">Synthetic sample data</span>
           </div>
           <img
-            src="/dashboard.png"
+            src={asset("/dashboard.png")}
             alt="WhoopScope Today dashboard showing synthetic recovery, strain, sleep, and workout trends"
           />
         </div>
@@ -161,7 +163,7 @@ export default function Home() {
         </div>
         <div className="mediaFrame">
           <img
-            src="/trends.png"
+            src={asset("/trends.png")}
             alt="WhoopScope trends screen using synthetic data"
           />
         </div>
@@ -255,7 +257,7 @@ export default function Home() {
 
       <section className="cta">
         <div className="shell ctaInner">
-          <img src="/icon.png" width="88" height="88" alt="" />
+          <img src={asset("/icon.png")} width="88" height="88" alt="" />
           <div>
             <p className="kicker">Start with the sample data</p>
             <h2>Bring your WHOOP history home.</h2>
@@ -268,7 +270,7 @@ export default function Home() {
 
       <footer className="footer shell">
         <a className="brand" href="#top">
-          <img src="/icon.png" width="28" height="28" alt="" />
+          <img src={asset("/icon.png")} width="28" height="28" alt="" />
           <span>WhoopScope</span>
         </a>
         <p>Free and open source under Apache 2.0.</p>

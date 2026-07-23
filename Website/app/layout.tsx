@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+const assetBase = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: {
     default: "WhoopScope — Your WHOOP history, at home on Mac",
@@ -29,8 +31,8 @@ export const metadata: Metadata = {
     description: "Your WHOOP history, at home on Mac.",
   },
   icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
+    icon: `${assetBase}/icon.png`,
+    apple: `${assetBase}/icon.png`,
   },
 };
 

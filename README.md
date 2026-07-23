@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://tornikegomareli.github.io/whoop-macos/"><img alt="WhoopScope website" src="https://img.shields.io/badge/website-WhoopScope-34dc88?style=flat-square"></a>
   <a href="https://github.com/tornikegomareli/whoop-macos/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/tornikegomareli/whoop-macos?include_prereleases&style=flat-square"></a>
   <a href="LICENSE"><img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square"></a>
   <img alt="macOS 26+" src="https://img.shields.io/badge/macOS-26%2B-black?style=flat-square&logo=apple">

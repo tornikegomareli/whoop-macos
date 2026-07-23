@@ -1,5 +1,6 @@
 .next/
 .open-next/
+out/
 .wrangler/
 node_modules/
 *.tsbuildinfo
