@@ -14,6 +14,7 @@ struct RootView: View {
     let healthReceiver: HealthBridgeReceiver
     let chatModel: ChatModel
     let aiSettings: AISettingsModel
+    let isDemoMode: Bool
 
     @State private var selection: AppDestination? = .today
 
@@ -58,7 +59,21 @@ struct RootView: View {
             }
         }
         .onOpenURL(perform: handleOpenURL)
-        .task { healthReceiver.start() }
+        .toolbar {
+            if isDemoMode {
+                ToolbarItem(placement: .primaryAction) {
+                    Label("Sample Data", systemImage: "sparkles")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .help("This window uses synthetic data and does not access a WHOOP account.")
+                }
+            }
+        }
+        .task {
+            if !isDemoMode {
+                healthReceiver.start()
+            }
+        }
     }
 
     private func handleOpenURL(_ url: URL) {

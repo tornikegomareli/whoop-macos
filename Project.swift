@@ -276,6 +276,7 @@ let project = Project(
                 .target(name: "WhoopScopeExplorers"),
                 .target(name: "WhoopScopeHealthBridge"),
                 .target(name: "WhoopScopePersistence"),
+                .target(name: "WhoopScopePreviewData"),
                 .target(name: "WhoopScopeSettings"),
                 .target(name: "WhoopScopeTrends"),
                 .target(name: "WhoopScopeWidgetSupport"),
@@ -299,6 +300,7 @@ let project = Project(
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeExplorers",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeHealthBridge",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopePersistence",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopePreviewData",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeSettings",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeTrends",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeWidgetSupport",
@@ -569,6 +571,19 @@ let project = Project(
             shared: true,
             buildAction: .buildAction(targets: ["WhoopScopeCompanion"]),
             runAction: .runAction(configuration: .debug)
+        ),
+        .scheme(
+            name: "WhoopScope Demo",
+            shared: true,
+            buildAction: .buildAction(targets: ["WhoopScopeMac"]),
+            runAction: .runAction(
+                configuration: .debug,
+                arguments: .arguments(
+                    launchArguments: [
+                        .launchArgument(name: "--demo-data", isEnabled: true),
+                    ]
+                )
+            )
         ),
     ]
 )

@@ -15,6 +15,12 @@ public struct WhoopScopeDatabase: Sendable {
         return database
     }
 
+    public static func inMemory(seed archive: WhoopDataArchive) throws -> WhoopScopeDatabase {
+        let database = try inMemory()
+        try database.seedSynchronously(archive)
+        return database
+    }
+
     public static func live() throws -> WhoopScopeDatabase {
         let applicationSupport = try FileManager.default.url(
             for: .applicationSupportDirectory,
@@ -234,6 +240,35 @@ public struct WhoopScopeDatabase: Sendable {
             }
         }
         try migrator.migrate(writer)
+    }
+
+    private func seedSynchronously(_ archive: WhoopDataArchive) throws {
+        let accountRow = WhoopAccountRow(account: archive.account)
+        let encoder = JSONEncoder()
+        let cycleRows = try archive.cycles.map {
+            try WhoopCycleRow(value: $0, encoder: encoder)
+        }
+        let recoveryRows = try archive.recoveries.map {
+            try WhoopRecoveryRow(value: $0, encoder: encoder)
+        }
+        let sleepRows = try archive.sleeps.map {
+            try WhoopSleepRow(value: $0, encoder: encoder)
+        }
+        let workoutRows = try archive.workouts.map {
+            try WhoopWorkoutRow(value: $0, encoder: encoder)
+        }
+
+        try writer.write { database in
+            try accountRow.save(database)
+            for row in cycleRows { try row.save(database) }
+            for row in recoveryRows { try row.save(database) }
+            for row in sleepRows { try row.save(database) }
+            for row in workoutRows { try row.save(database) }
+            try WhoopSyncStateRow(
+                id: 1,
+                synchronizedAt: archive.lastSynchronizedAt
+            ).save(database)
+        }
     }
 }
 

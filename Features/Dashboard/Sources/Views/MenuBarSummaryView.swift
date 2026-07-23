@@ -4,10 +4,16 @@ import WhoopScopeDomain
 
 public struct MenuBarSummaryView: View {
     private let model: DashboardModel
+    private let statusLabel: String?
     private let openDashboard: () -> Void
 
-    public init(model: DashboardModel, openDashboard: @escaping () -> Void) {
+    public init(
+        model: DashboardModel,
+        statusLabel: String? = nil,
+        openDashboard: @escaping () -> Void
+    ) {
         self.model = model
+        self.statusLabel = statusLabel
         self.openDashboard = openDashboard
     }
 
@@ -20,6 +26,7 @@ public struct MenuBarSummaryView: View {
                 MenuBarLoadedView(
                     snapshot: snapshot,
                     isRefreshing: model.isRefreshing,
+                    statusLabel: statusLabel,
                     openDashboard: openDashboard,
                     refresh: refresh
                 )
@@ -41,6 +48,7 @@ public struct MenuBarSummaryView: View {
 private struct MenuBarLoadedView: View {
     let snapshot: DashboardSnapshot
     let isRefreshing: Bool
+    let statusLabel: String?
     let openDashboard: () -> Void
     let refresh: () -> Void
 
@@ -66,8 +74,18 @@ private struct MenuBarLoadedView: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text("Today")
-                    .font(.headline)
+                HStack(spacing: 7) {
+                    Text("Today")
+                        .font(.headline)
+                    if let statusLabel {
+                        Text(statusLabel)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(.secondary.opacity(0.12), in: .capsule)
+                    }
+                }
                 Text("Updated \(snapshot.lastSynchronizedAt, style: .relative)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
