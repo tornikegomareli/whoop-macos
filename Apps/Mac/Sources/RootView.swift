@@ -1,6 +1,7 @@
 import SwiftUI
 import WhoopScopeChat
 import WhoopScopeDashboard
+import WhoopScopeExplorers
 import WhoopScopeHealthBridge
 import WhoopScopeSettings
 import WhoopScopeTrends
@@ -9,6 +10,7 @@ struct RootView: View {
     let dashboardModel: DashboardModel
     let settingsModel: SettingsModel
     let trendsModel: TrendsModel
+    let explorerModel: ExplorerModel
     let healthReceiver: HealthBridgeReceiver
     let chatModel: ChatModel
     let aiSettings: AISettingsModel
@@ -32,6 +34,18 @@ struct RootView: View {
             case .trends:
                 TrendsView(model: trendsModel)
                     .navigationTitle("Trends")
+            case .sleep:
+                SleepExplorerView(model: explorerModel)
+                    .navigationTitle("Sleep")
+            case .recovery:
+                RecoveryExplorerView(model: explorerModel)
+                    .navigationTitle("Recovery")
+            case .strain:
+                StrainExplorerView(model: explorerModel)
+                    .navigationTitle("Strain & Cycles")
+            case .workouts:
+                WorkoutsExplorerView(model: explorerModel)
+                    .navigationTitle("Workouts")
             case .settings:
                 SettingsView(
                     model: settingsModel,
@@ -41,8 +55,6 @@ struct RootView: View {
             case .chat:
                 ChatView(model: chatModel)
                     .navigationTitle("Ask Your Data")
-            case let destination:
-                PlannedFeatureView(destination: destination)
             }
         }
         .onOpenURL(perform: handleOpenURL)

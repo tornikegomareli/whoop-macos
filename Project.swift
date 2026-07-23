@@ -145,6 +145,18 @@ let project = Project(
             ]
         ),
         .target(
+            name: "WhoopScopeExplorers",
+            destinations: [.mac],
+            product: .framework,
+            bundleId: "com.whoopscope.explorers",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Features/Explorers/Sources/**"],
+            dependencies: [
+                .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopeDesignSystem"),
+            ]
+        ),
+        .target(
             name: "WhoopScopeChat",
             destinations: [.mac],
             product: .framework,
@@ -261,6 +273,7 @@ let project = Project(
                 .target(name: "WhoopScopeData"),
                 .target(name: "WhoopScopeDesignSystem"),
                 .target(name: "WhoopScopeDomain"),
+                .target(name: "WhoopScopeExplorers"),
                 .target(name: "WhoopScopeHealthBridge"),
                 .target(name: "WhoopScopePersistence"),
                 .target(name: "WhoopScopeSettings"),
@@ -283,6 +296,7 @@ let project = Project(
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeData",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDesignSystem",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeDomain",
+                        "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeExplorers",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeHealthBridge",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopePersistence",
                         "$(CONFIGURATION_BUILD_DIR)$(TARGET_BUILD_SUBPATH)/WhoopScopeSettings",
@@ -460,6 +474,23 @@ let project = Project(
             ])
         ),
         .target(
+            name: "WhoopScopeExplorersTests",
+            destinations: [.mac],
+            product: .unitTests,
+            bundleId: "com.whoopscope.explorers-tests",
+            deploymentTargets: .macOS("26.0"),
+            sources: ["Features/Explorers/Tests/**"],
+            dependencies: [
+                .target(name: "WhoopScopeExplorers"),
+                .target(name: "WhoopScopeDomain"),
+            ],
+            settings: frameworkSearchSettings([
+                "WhoopScopeDesignSystem",
+                "WhoopScopeExplorers",
+                "WhoopScopeDomain",
+            ])
+        ),
+        .target(
             name: "WhoopScopeWidgetSupportTests",
             destinations: [.mac],
             product: .unitTests,
@@ -524,6 +555,7 @@ let project = Project(
                     "WhoopScopePersistenceTests",
                     "WhoopScopeSettingsTests",
                     "WhoopScopeTrendsTests",
+                    "WhoopScopeExplorersTests",
                     "WhoopScopeWidgetSupportTests",
                     "WhoopScopeHealthBridgeTests",
                     "WhoopScopeChatTests",

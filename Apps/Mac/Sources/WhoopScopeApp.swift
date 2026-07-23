@@ -4,6 +4,7 @@ import WhoopScopeChat
 import WhoopScopeData
 import WhoopScopeDashboard
 import WhoopScopeDomain
+import WhoopScopeExplorers
 import WhoopScopeHealthBridge
 import WhoopScopePersistence
 import WhoopScopeSettings
@@ -14,6 +15,7 @@ struct WhoopScopeApp: App {
     @State private var dashboardModel: DashboardModel
     @State private var settingsModel: SettingsModel
     @State private var trendsModel: TrendsModel
+    @State private var explorerModel: ExplorerModel
     @State private var healthReceiver: HealthBridgeReceiver
     @State private var aiSettings: AISettingsModel
     @State private var chatModel: ChatModel
@@ -66,6 +68,15 @@ struct WhoopScopeApp: App {
                 loadTrends: LoadTrends(repository: trendsRepository)
             )
         )
+        let explorerRepository = LiveExplorerRepository(
+            synchronizer: synchronizer,
+            database: database
+        )
+        _explorerModel = State(
+            initialValue: ExplorerModel(
+                loadExplorer: LoadExplorer(repository: explorerRepository)
+            )
+        )
         let accountRepository = LiveWhoopAccountRepository(
             apiClient: apiClient,
             database: database
@@ -85,6 +96,7 @@ struct WhoopScopeApp: App {
                 dashboardModel: dashboardModel,
                 settingsModel: settingsModel,
                 trendsModel: trendsModel,
+                explorerModel: explorerModel,
                 healthReceiver: healthReceiver,
                 chatModel: chatModel,
                 aiSettings: aiSettings

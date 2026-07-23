@@ -1,6 +1,8 @@
 # WhoopScope
 
-WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of official activity data, a live Today dashboard, 7/30/90-day trends, menu-bar and desktop widgets, Siri and Spotlight actions, grounded data chat, and a Tuist-managed iPhone companion for complementary Apple Health context.
+WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of official activity data, a live Today dashboard, 7/30/90-day trends, detailed Sleep, Recovery, Strain & Cycles, and Workouts explorers, menu-bar and desktop widgets, Siri and Spotlight actions, grounded data chat, and a Tuist-managed iPhone companion for complementary Apple Health context.
+
+Each explorer is backed by the synchronized local archive rather than sample data. Range controls update all four explorers, charts support date selection, history rows open native inspectors with the complete stored record, and Workouts includes activity and text filters.
 
 ## Requirements
 
@@ -109,6 +111,7 @@ xcodebuild \
 - `Modules/DesignSystem`: shared visual tokens and surfaces.
 - `Features/Dashboard`: dashboard presentation and its observable model.
 - `Features/Trends`: historical comparisons, interactive charts, and range selection.
+- `Features/Explorers`: detailed sleep, recovery, cycle, and workout analysis with history inspectors.
 - `Features/Chat`: evidence selection, grounded prompts, provider adapters, secure provider settings, and chat presentation.
 - `Modules/WidgetSupport`: the minimal, display-only snapshot shared with WidgetKit.
 - `Modules/HealthBridge`: encrypted local discovery and transfer between iPhone and Mac.
