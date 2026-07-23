@@ -1,0 +1,15 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated build output and installed dependencies"
+paths = [
+  '''(^|/)\.build/''',
+  '''(^|/)build/''',
+  '''(^|/)Derived/''',
+  '''(^|/)Tuist/\.build/''',
+  '''(^|/)Tuist/Dependencies/''',
+  '''(^|/)Broker/node_modules/''',
+  '''(^|/)WhoopScope\.xcodeproj/''',
+  '''(^|/)WhoopScope\.xcworkspace/''',
+]

@@ -1,19 +1,89 @@
-# WhoopScope
+<p align="center">
+  <img src="Apps/Mac/Resources/Assets.xcassets/AppIcon.appiconset/whoopscope-256.png" width="128" alt="WhoopScope app icon">
+</p>
 
-WhoopScope is a native, privacy-first macOS dashboard for personal WHOOP data. The current build supports broker-backed WHOOP authentication, Keychain token storage and refresh, complete local synchronization of official activity data, a live Today dashboard, 7/30/90-day trends, detailed Sleep, Recovery, Strain & Cycles, and Workouts explorers, menu-bar and desktop widgets, Siri and Spotlight actions, grounded data chat, and a Tuist-managed iPhone companion for complementary Apple Health context.
+<h1 align="center">WhoopScope</h1>
 
-Each explorer is backed by the synchronized local archive rather than sample data. Range controls update all four explorers, charts support date selection, history rows open native inspectors with the complete stored record, and Workouts includes activity and text filters.
+<p align="center">
+  A private, native macOS home for your WHOOP history.
+</p>
 
-## Requirements
+<p align="center">
+  <a href="https://github.com/tornikegomareli/whoop-macos/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/tornikegomareli/whoop-macos?include_prereleases&style=flat-square"></a>
+  <a href="LICENSE"><img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square"></a>
+  <img alt="macOS 26+" src="https://img.shields.io/badge/macOS-26%2B-black?style=flat-square&logo=apple">
+  <a href="https://github.com/tornikegomareli/whoop-macos/actions"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/tornikegomareli/whoop-macos/ci.yml?branch=main&style=flat-square"></a>
+</p>
 
-- Apple silicon Mac running macOS 26 or later
-- iPhone running iOS 26 or later for optional Apple Health enrichment
-- Xcode 26 or later
-- [Mise](https://mise.jdx.dev/)
+![WhoopScope Today dashboard using synthetic sample data](docs/images/dashboard.png)
 
-## Generate and run
+WhoopScope synchronizes the data available through WHOOP's official Developer
+API and turns it into a fast local dashboard, long-range trends, detailed
+explorers, widgets, Siri and Spotlight actions, and grounded conversations
+about your own history.
+
+The project is free and open source. Health records stay on the Mac unless you
+explicitly choose a cloud model and supply your own API key.
+
+> [!IMPORTANT]
+> WhoopScope is in early access. The shared WHOOP application is currently
+> limited to the Developer Platform's pre-approval member allowance. Source
+> builds and the synthetic demo are available to everyone; broader sign-in
+> access depends on WHOOP application approval.
+
+## Highlights
+
+- Official WHOOP API coverage for profile, body measurements, cycles,
+  recovery, sleep, and workouts.
+- Keychain-backed OAuth tokens with automatic refresh through a minimal,
+  stateless authentication broker.
+- Native Today dashboard, 7/30/90-day trends, detailed record inspectors, and
+  activity filtering.
+- A compact menu-bar dashboard and small/medium WidgetKit desktop widgets.
+- Siri, Shortcuts, and Spotlight actions for frequently requested metrics.
+- Grounded data chat through Apple's on-device Foundation Models framework or
+  OpenAI with your own Keychain-stored API key.
+- Optional iPhone companion for complementary Apple Health activity, mobility,
+  mindfulness, hydration, cardio-fitness, and body-composition summaries.
+  HealthKit sleep is intentionally never requested or merged.
+- Deterministic sample mode for development, screenshots, and bug reports.
+
+## See it in action
+
+[Watch the 13-second WhoopScope demo](docs/media/whoopscope-demo.mp4).
+Every number shown in the demo and screenshots is synthetic.
+
+| Trends | Workout explorer |
+| --- | --- |
+| ![Thirty-day WhoopScope trends using sample data](docs/images/trends.png) | ![WhoopScope workout explorer using sample data](docs/images/workouts.png) |
+
+<p align="center">
+  <img src="docs/images/menu-bar.png" width="380" alt="WhoopScope menu-bar summary using sample data">
+</p>
+
+## Download
+
+Download the newest build from
+[GitHub Releases](https://github.com/tornikegomareli/whoop-macos/releases/latest).
+
+WhoopScope currently requires:
+
+- Apple silicon Mac.
+- macOS 26 or later.
+- A WHOOP account for live synchronization.
+- Apple Intelligence enabled for on-device chat, or an OpenAI API key for the
+  optional cloud provider.
+
+The release page states the signing and notarization status of each build.
+SHA-256 checksums are attached beside downloadable builds.
+
+## Build from source
+
+Install Xcode 26 or later and [Mise](https://mise.jdx.dev/), then:
 
 ```bash
+git clone https://github.com/tornikegomareli/whoop-macos.git
+cd whoop-macos
 mise trust
 mise install
 tuist install
@@ -21,108 +91,96 @@ tuist generate
 open WhoopScope.xcworkspace
 ```
 
-Select the `WhoopScope` scheme and run the macOS app. Generated Xcode projects and workspaces are intentionally excluded from Git.
+Select the `WhoopScope` scheme for live data. Select `WhoopScope Demo` for a
+fully local synthetic archive that does not access Keychain, WHOOP, the live
+widget snapshot, or the Apple Health receiver.
 
-## Add complementary Apple Health data
-
-WHOOP remains the only source for sleep and recovery. The iPhone companion requests read-only access to selected activity, mobility, mindfulness, hydration, cardio-fitness, and body-composition categories; it never requests HealthKit sleep data.
-
-1. Keep the `WhoopScope` Mac app open so its local receiver is available.
-2. In Xcode, select the `WhoopScopeCompanion` scheme and your iPhone, then run it.
-3. Select **Allow Access & Prepare** and choose only the categories you want to share.
-4. Select your Mac when it appears, connect, and send the prepared summaries.
-
-Both devices need Wi-Fi and Bluetooth enabled. The transfer uses an encrypted Apple peer-to-peer session and does not use iCloud or a WhoopScope server. The Mac stores imported daily summaries in the same private local database as WHOOP data. Import status is visible in **Settings → Apple Health companion**.
-
-## Ask your data
-
-Open **Ask Your Data** to ask questions about synchronized WHOOP history and imported Apple Health summaries. WhoopScope selects a compact date range from the question, adds exact local evidence, and labels every answer with the sources and period used. Sleep and recovery evidence always comes only from WHOOP.
-
-Apple Intelligence is the default provider. It runs through Apple's Foundation Models framework and keeps the prompt and response on the Mac. Apple Intelligence must be enabled and its on-device model must be ready.
-
-OpenAI is an optional bring-your-own-key provider:
-
-1. Open **Settings → Ask Your Data** and select **OpenAI**.
-2. Enter your API key and, if desired, change the model name.
-3. Save the key. It is stored in Keychain and is never written to the project or local database.
-
-When OpenAI is selected, the question and its grounded evidence are sent directly to the OpenAI Responses API. Requests set `store` to `false`; the provider and privacy boundary remain visible in Settings and in the chat header.
-
-## Connect WHOOP
-
-Create a WHOOP Developer app with the redirect URI:
-
-```text
-whoopscope://oauth/callback
-```
-
-Enable `offline` and all six read scopes. WhoopScope uses a small authentication broker so the shared Client Secret never ships in the Mac app. Users open **Settings** and select **Connect WHOOP**; they never enter developer credentials.
-
-### Run the broker locally
-
-```bash
-cd Broker
-npm install
-cp .dev.vars.example .dev.vars
-# Fill .dev.vars locally. It is ignored by Git.
-npm run dev
-```
-
-For local broker development, temporarily set `WHOOPSCOPE_BROKER_URL` in `Project.swift` to `http://127.0.0.1:8787`. Only localhost HTTP is accepted; deployed brokers must use HTTPS.
-
-### Deploy the broker
-
-```bash
-cd Broker
-npx wrangler login
-npx wrangler secret put WHOOP_CLIENT_ID
-npx wrangler secret put WHOOP_CLIENT_SECRET
-npm run deploy
-```
-
-Wrangler prompts for each value and stores it as an encrypted Cloudflare secret. Never add the Client Secret to source code, Tuist manifests, build settings, `.xcconfig`, `.env`, or `.dev.vars` files that could be committed.
-
-The app is configured to use the production broker at `https://whoopscope-auth.whoopscope.workers.dev`.
-
-## Verify
+Run the complete macOS test suite with:
 
 ```bash
 mise exec -- tuist test WhoopScope --platform macOS
 ```
 
-You can also build directly:
+## Connect WHOOP
 
-```bash
-xcodebuild \
-  -workspace WhoopScope.xcworkspace \
-  -scheme WhoopScope \
-  -destination 'platform=macOS,arch=arm64' \
-  build
+The published build uses WhoopScope's authentication broker. The WHOOP Client
+Secret remains on that server and is never embedded in the Mac app.
+
+Maintainers of a fork should create their own WHOOP Developer application with:
+
+```text
+whoopscope://oauth/callback
 ```
+
+Enable `offline` and all six read scopes, deploy the worker in `Broker`, and
+change `WHOOPSCOPE_BROKER_URL` in `Project.swift` to the fork's HTTPS endpoint.
+See [Broker/README.md](Broker/README.md) for the complete deployment and secret
+rotation procedure.
+
+## Privacy model
+
+- WHOOP and imported Apple Health summaries are stored in the app's private
+  Application Support directory.
+- WHOOP tokens and model API keys are stored in Apple Keychain.
+- The authentication broker exchanges and refreshes tokens but does not store
+  them or receive WHOOP health records.
+- Apple Health summaries travel directly from iPhone to Mac over an encrypted
+  local peer-to-peer session.
+- Apple Foundation Models processing stays on-device.
+- When OpenAI is selected, WhoopScope shows that grounded evidence will leave
+  the Mac, uses the user's own key, and sets response storage to disabled.
+- The app contains no advertising, analytics, or behavioral tracking.
+
+Read the full [privacy policy](PRIVACY.md) and
+[security policy](SECURITY.md).
 
 ## Architecture
 
-- `Modules/Domain`: framework-independent entities, repository contracts, and use cases.
-- `Modules/Persistence`: GRDB-backed local persistence infrastructure.
-- `Modules/Authentication`: public-client OAuth adapter, Keychain token storage, and broker client.
-- `Modules/Data`: official WHOOP API transport, pagination, synchronization, and domain mapping.
-- `Broker`: stateless Cloudflare Worker that adds the server-only Client Secret during token exchange and refresh.
-- `Modules/PreviewData`: deterministic fixture implementations used before live OAuth is connected.
-- `Modules/DesignSystem`: shared visual tokens and surfaces.
-- `Features/Dashboard`: dashboard presentation and its observable model.
-- `Features/Trends`: historical comparisons, interactive charts, and range selection.
-- `Features/Explorers`: detailed sleep, recovery, cycle, and workout analysis with history inspectors.
-- `Features/Chat`: evidence selection, grounded prompts, provider adapters, secure provider settings, and chat presentation.
-- `Modules/WidgetSupport`: the minimal, display-only snapshot shared with WidgetKit.
-- `Modules/HealthBridge`: encrypted local discovery and transfer between iPhone and Mac.
-- `Apps/Widget`: small and medium desktop widgets that never access credentials or the WHOOP API.
-- `Apps/Mac`: dependency composition, navigation, window, and menu-bar scenes.
-- `Apps/iPhone`: read-only HealthKit companion, generated and maintained with Tuist.
+```text
+Apps/Mac ───────┬── Features/{Dashboard,Trends,Explorers,Chat,Settings}
+                ├── Modules/{Authentication,Data,Persistence,HealthBridge}
+                └── Modules/{Domain,DesignSystem,WidgetSupport,PreviewData}
 
-Dependencies point inward toward the domain layer. Generated API DTOs, Keychain, WHOOP networking, HealthKit, and model providers remain infrastructure adapters.
+Apps/Widget ─────── Modules/WidgetSupport
+Apps/iPhone ─────── Modules/{Domain,HealthBridge}
+Broker ──────────── WHOOP OAuth token endpoints only
+```
 
-## Privacy boundary
+The domain layer owns entities and repository contracts. Infrastructure
+adapters handle WHOOP networking, GRDB, Keychain, local device transfer, and
+model providers. UI features depend inward on domain use cases. Tuist keeps
+the project graph reproducible without committing generated Xcode projects.
 
-No credentials are present in the repository. Rotating user access and refresh tokens are stored in Keychain. The Client Secret exists only in the broker's encrypted deployment secrets. WHOOP records are stored in the user's Application Support directory and remain on the Mac.
+## Project status
 
-WHOOP is the only source for sleep and recovery. The optional iPhone companion reads only complementary HealthKit categories selected by the user and transfers daily summaries directly to the Mac without iCloud storage. Apple Intelligence processing remains on-device. OpenAI is used only when the user selects it and supplies a Keychain-stored API key; the app then sends the question and grounded evidence directly to OpenAI with response storage disabled.
+The current focus is a trustworthy first public prerelease:
+
+- The codebase and demo are open for review and contribution.
+- Public binary packaging, signing, and notarization are being verified.
+- WHOOP sign-in remains capacity-limited until application approval.
+- The iPhone companion is built from source for now; it is not yet distributed
+  separately through TestFlight or the App Store.
+
+WhoopScope is an educational fitness-history tool, not a medical device. It
+does not diagnose conditions or provide medical advice.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Never
+attach real health records, database files, API keys, or authentication tokens
+to an issue. Use the `WhoopScope Demo` scheme for reproducible reports.
+
+Security reports must follow [SECURITY.md](SECURITY.md).
+Sample workflows and grounded question ideas are in
+[docs/EXAMPLES.md](docs/EXAMPLES.md).
+
+## License and trademarks
+
+WhoopScope is released under the
+[Apache License 2.0](LICENSE). Third-party notices are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+WHOOP is a trademark of WHOOP, Inc. WhoopScope is an independent project and
+is not affiliated with, endorsed by, or sponsored by WHOOP, Inc. Apple,
+Apple Health, Siri, Spotlight, and macOS are trademarks of Apple Inc. OpenAI
+is a trademark of OpenAI, L.L.C.
