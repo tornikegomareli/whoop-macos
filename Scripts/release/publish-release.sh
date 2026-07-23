@@ -38,7 +38,6 @@ fi
 gh release create "$TAG" \
   "$ZIP_PATH" \
   "$CHECKSUM_PATH" \
-  "$ROOT_DIR/docs/media/whoopscope-demo.mp4#WhoopScope-$VERSION-demo.mp4" \
   --repo tornikegomareli/whoop-macos \
   --title "WhoopScope $VERSION" \
   --notes-file "$NOTES_PATH" \

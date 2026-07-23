@@ -40,8 +40,7 @@ a {
   text-decoration: none;
 }
 
-img,
-video {
+img {
   display: block;
   max-width: 100%;
 }
@@ -482,18 +481,6 @@ video {
 
 .mediaFrame img {
   width: 100%;
-}
-
-.demoSection {
-  padding-top: 70px;
-}
-
-.demoVideo {
-  width: 100%;
-  background: #111;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.45);
 }
 
 .privacyBand {

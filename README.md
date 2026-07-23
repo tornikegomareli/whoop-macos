@@ -51,8 +51,7 @@ explicitly choose a cloud model and supply your own API key.
 
 ## See it in action
 
-[Watch the 13-second WhoopScope demo](docs/media/whoopscope-demo.mp4).
-Every number shown in the demo and screenshots is synthetic.
+Every number shown in these screenshots is synthetic.
 
 | Trends | Workout explorer |
 | --- | --- |

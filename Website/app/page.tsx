@@ -167,26 +167,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell demoSection">
-        <div className="sectionHeading compact">
-          <p className="kicker">A quick tour</p>
-          <h2>Thirteen seconds of WhoopScope.</h2>
-          <p>Every value and identity in this recording is synthetic.</p>
-        </div>
-        <video
-          className="demoVideo"
-          controls
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/dashboard.png"
-        >
-          <source src="/whoopscope-demo.mp4" type="video/mp4" />
-          Your browser does not support embedded video.
-        </video>
-      </section>
-
       <section className="privacyBand" id="privacy">
         <div className="shell privacyGrid">
           <div>
